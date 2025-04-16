@@ -719,4 +719,80 @@ body {
     .education-card:hover {
         transform: none;
     }
+}
+
+/* Domain Section */
+.domain {
+    padding: 4rem 0;
+    background-color: var(--white);
+}
+
+.domain-content {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.domain-card {
+    background-color: var(--background);
+    border-radius: 10px;
+    padding: 2rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 2rem;
+    box-shadow: var(--card-shadow);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.domain-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--hover-shadow);
+}
+
+.domain-icon {
+    width: 80px;
+    height: 80px;
+    background-color: var(--secondary-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.domain-icon i {
+    font-size: 2.5rem;
+    color: var(--white);
+}
+
+.domain-details {
+    flex: 1;
+}
+
+.domain-details h3 {
+    font-size: 2rem;
+    color: var(--text-color);
+    margin-bottom: 1rem;
+}
+
+.domain-description {
+    color: var(--light-text);
+    line-height: 1.8;
+    font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+    .domain-card {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .domain-icon {
+        margin-bottom: 1.5rem;
+    }
+
+    .domain-card:hover {
+        transform: none;
+    }
 } 
