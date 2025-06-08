@@ -1369,6 +1369,186 @@
                 </div>
             </div>
         </section>
+
+        <!-- Data Structures Section -->
+        <section class="ideas-section">
+            <h2 class="section-title">Data Structures Used</h2>
+            <div class="ideas-grid">
+                <div class="idea-card">
+                    <h3>Vector Store</h3>
+                    <div class="goal-badge">📊 Data Structure</div>
+                    <p>High-dimensional vector database for efficient semantic search and fact verification.</p>
+                    
+                    <h4>Implementation Details:</h4>
+                    <ul class="step-list">
+                        <li class="step-item">
+                            <div>
+                                <div class="step-title">Dense Vector Storage</div>
+                                <div class="step-content">768-dimensional vectors from Sentence-BERT embeddings</div>
+                            </div>
+                        </li>
+                        <li class="step-item">
+                            <div>
+                                <div class="step-title">Indexing</div>
+                                <div class="step-content">HNSW (Hierarchical Navigable Small World) graph for fast approximate nearest neighbor search</div>
+                            </div>
+                        </li>
+                        <li class="step-item">
+                            <div>
+                                <div class="step-title">Metadata Storage</div>
+                                <div class="step-content">Source credibility, timestamp, and verification status</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="idea-card">
+                    <h3>Reputation Graph</h3>
+                    <div class="goal-badge">📊 Data Structure</div>
+                    <p>Directed weighted graph for tracking user credibility and feedback relationships.</p>
+                    
+                    <h4>Implementation Details:</h4>
+                    <ul class="step-list">
+                        <li class="step-item">
+                            <div>
+                                <div class="step-title">Node Structure</div>
+                                <div class="step-content">Users with reputation scores and verification status</div>
+                            </div>
+                        </li>
+                        <li class="step-item">
+                            <div>
+                                <div class="step-title">Edge Properties</div>
+                                <div class="step-content">Feedback weights, interaction history, and trust scores</div>
+                            </div>
+                        </li>
+                        <li class="step-item">
+                            <div>
+                                <div class="step-title">Graph Operations</div>
+                                <div class="step-content">Fast reputation propagation and community detection</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="idea-card">
+                    <h3>Consensus Tree</h3>
+                    <div class="goal-badge">📊 Data Structure</div>
+                    <p>Hierarchical structure for tracking and validating multi-source consensus.</p>
+                    
+                    <h4>Implementation Details:</h4>
+                    <ul class="step-list">
+                        <li class="step-item">
+                            <div>
+                                <div class="step-title">Tree Structure</div>
+                                <div class="step-content">Claims as nodes, sources as leaves with credibility weights</div>
+                            </div>
+                        </li>
+                        <li class="step-item">
+                            <div>
+                                <div class="step-title">Aggregation Nodes</div>
+                                <div class="step-content">Weighted consensus scores and confidence levels</div>
+                            </div>
+                        </li>
+                        <li class="step-item">
+                            <div>
+                                <div class="step-title">Temporal Tracking</div>
+                                <div class="step-content">Version history and update timestamps</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Algorithms Section -->
+        <section class="ideas-section">
+            <h2 class="section-title">Algorithms Used</h2>
+            <div class="ideas-grid">
+                <div class="idea-card">
+                    <h3>Semantic Similarity Matching</h3>
+                    <div class="goal-badge">⚡ Algorithm</div>
+                    <p>Advanced text matching using transformer-based embeddings and similarity metrics.</p>
+                    
+                    <h4>Key Components:</h4>
+                    <ul class="step-list">
+                        <li class="step-item">
+                            <div>
+                                <div class="step-title">Sentence-BERT</div>
+                                <div class="step-content">Generates contextual embeddings for semantic understanding</div>
+                            </div>
+                        </li>
+                        <li class="step-item">
+                            <div>
+                                <div class="step-title">Cosine Similarity</div>
+                                <div class="step-content">Measures semantic closeness between claims and verified facts</div>
+                            </div>
+                        </li>
+                        <li class="step-item">
+                            <div>
+                                <div class="step-title">Threshold Optimization</div>
+                                <div class="step-content">Dynamic threshold adjustment based on confidence scores</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="idea-card">
+                    <h3>Reputation Propagation</h3>
+                    <div class="goal-badge">⚡ Algorithm</div>
+                    <p>Graph-based algorithm for calculating and updating user reputation scores.</p>
+                    
+                    <h4>Key Components:</h4>
+                    <ul class="step-list">
+                        <li class="step-item">
+                            <div>
+                                <div class="step-title">PageRank Variant</div>
+                                <div class="step-content">Modified for reputation scoring with temporal decay</div>
+                            </div>
+                        </li>
+                        <li class="step-item">
+                            <div>
+                                <div class="step-title">Trust Metrics</div>
+                                <div class="step-content">Weighted aggregation of feedback and verification history</div>
+                            </div>
+                        </li>
+                        <li class="step-item">
+                            <div>
+                                <div class="step-title">Sybil Attack Detection</div>
+                                <div class="step-content">Graph clustering to identify coordinated manipulation attempts</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="idea-card">
+                    <h3>Multi-Source Consensus</h3>
+                    <div class="goal-badge">⚡ Algorithm</div>
+                    <p>Advanced algorithm for aggregating and validating information from multiple sources.</p>
+                    
+                    <h4>Key Components:</h4>
+                    <ul class="step-list">
+                        <li class="step-item">
+                            <div>
+                                <div class="step-title">Weighted Voting</div>
+                                <div class="step-content">Source credibility-based consensus calculation</div>
+                            </div>
+                        </li>
+                        <li class="step-item">
+                            <div>
+                                <div class="step-title">Temporal Analysis</div>
+                                <div class="step-content">Time-series based verification and update tracking</div>
+                            </div>
+                        </li>
+                        <li class="step-item">
+                            <div>
+                                <div class="step-title">Conflict Resolution</div>
+                                <div class="step-content">Handling contradictory information from different sources</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
     </div>
 </body>
 </html>
