@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IndexWise - Multi-Intent Search Ranking</title>
+    <style>
+        :root {
+            --primary-dark: #1a1c3a;
+            --primary-medium: #2d3561;
+            --primary-light: #4f5d95;
+            --accent-blue: #00d4ff;
+            --accent-purple: #9146ff;
+            --accent-pink: #ff6b9d;
+            --accent-orange: #ff8c42;
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --text-light: #718096;
+            --background-light: #f7fafc;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --shadow-sm: rgba(0, 0, 0, 0.05);
+            --shadow-md: rgba(0, 0, 0, 0.1);
+            --shadow-lg: rgba(0, 0, 0, 0.15);
+            --shadow-xl: rgba(0, 0, 0, 0.25);
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-accent: linear-gradient(45deg, #00d4ff, #9146ff);
+            --gradient-hover: linear-gradient(45deg, #ff6b9d, #ff8c42);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Floating background elements */
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(45deg, rgba(0, 212, 255, 0.1), rgba(145, 70, 255, 0.1));
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .floating-shape:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .floating-shape:nth-child(2) {
+            width: 120px;
+            height: 120px;
+            top: 60%;
+            right: 15%;
+            animation-delay: -5s;
+        }
+
+        .floating-shape:nth-child(3) {
+            width: 60px;
+            height: 60px;
+            bottom: 30%;
+            left: 20%;
+            animation-delay: -10s;
+        }
+
+        .floating-shape:nth-child(4) {
+            width: 100px;
+            height: 100px;
+            top: 40%;
+            right: 40%;
+            animation-delay: -15s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-20px) rotate(90deg); }
+            50% { transform: translateY(0px) rotate(180deg); }
+            75% { transform: translateY(-10px) rotate(270deg); }
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero {
+            background: var(--gradient-primary);
+            padding: 80px 0 60px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            animation: slide 30s linear infinite;
+        }
+
+        @keyframes slide {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100px); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .search-icon {
+            display: inline-block;
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(45deg, var(--card-bg), #f0f4f8);
+            border-radius: 50%;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            box-shadow: 0 20px 40px var(--shadow-xl);
+            color: var(--accent-blue);
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .search-icon::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: var(--gradient-accent);
+            border-radius: 50%;
+            transition: all 0.6s ease;
+            transform: translate(-50%, -50%);
+            z-index: -1;
+        }
+
+        .search-icon:hover {
+            transform: translateY(-10px) scale(1.1);
+            box-shadow: 0 30px 60px var(--shadow-xl);
+            color: white;
+        }
+
+        .search-icon:hover::before {
+            width: 120%;
+            height: 120%;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            color: var(--card-bg);
+            line-height: 1.1;
+            text-shadow: 2px 2px 8px var(--shadow-lg);
+            background: linear-gradient(45deg, #fff, #e2e8f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: glow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3)); }
+            to { filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.6)); }
+        }
+
+        .hero-subtitle {
+            font-size: 1.4rem;
+            color: var(--card-bg);
+            margin-bottom: 2rem;
+            font-weight: 500;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            display: inline-block;
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-subtitle::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .hero-subtitle:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+        }
+
+        .hero-subtitle:hover::before {
+            left: 100%;
+        }
+
+        .main-content {
+            padding: 3rem 0 4rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .problem-section {
+            background: linear-gradient(145deg, var(--card-bg), #f8fafc);
+            border-radius: 25px;
+            padding: 3.5rem;
+            box-shadow: 0 25px 50px var(--shadow-md);
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .problem-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-accent);
+            transform: scaleX(0);
+            transition: transform 0.6s ease;
+        }
+
+        .problem-section:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 35px 70px var(--shadow-lg);
+        }
+
+        .problem-section:hover::before {
+            transform: scaleX(1);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            border-bottom: 2px solid transparent;
+            background: linear-gradient(90deg, var(--border-color), transparent) bottom;
+            background-size: 100% 2px;
+            background-repeat: no-repeat;
+            padding-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .section-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-accent);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            margin-right: 2rem;
+            color: var(--card-bg);
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section-icon::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: var(--gradient-hover);
+            border-radius: 50%;
+            transition: all 0.5s ease;
+            transform: translate(-50%, -50%);
+            z-index: -1;
+        }
+
+        .section-icon:hover {
+            transform: rotate(15deg) scale(1.1);
+        }
+
+        .section-icon:hover::after {
+            width: 120%;
+            height: 120%;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            position: relative;
+        }
+
+        .query-example {
+            background: linear-gradient(135deg, var(--background-light), var(--card-bg));
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 2rem 0;
+            border-left: 5px solid var(--accent-blue);
+            font-style: italic;
+            color: var(--text-primary);
+            position: relative;
+            transition: all 0.4s ease;
+            overflow: hidden;
+        }
+
+        .query-example::before {
+            content: '"';
+            font-size: 4rem;
+            color: var(--accent-blue);
+            position: absolute;
+            top: -15px;
+            left: 15px;
+            opacity: 0.2;
+            transition: all 0.3s ease;
+        }
+
+        .query-example::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+            transition: width 0.6s ease;
+        }
+
+        .query-example:hover {
+            background: var(--card-bg);
+            box-shadow: 0 15px 30px var(--shadow-md);
+            transform: translateX(10px);
+            border-left-color: var(--accent-purple);
+        }
+
+        .query-example:hover::before {
+            opacity: 0.4;
+            transform: scale(1.1);
+        }
+
+        .query-example:hover::after {
+            width: 100%;
+        }
+
+        .traditional-issues {
+            margin-top: 3rem;
+        }
+
+        .issues-header {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .issues-header::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: var(--gradient-accent);
+            border-radius: 2px;
+        }
+
+        .issues-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            margin: 3rem 0;
+            width: 100%;
+        }
+
+        .issue-card {
+            background: linear-gradient(145deg, var(--card-bg), #f8fafc);
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 8px 25px var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .issue-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient-accent);
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+
+        .issue-card::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: linear-gradient(45deg, rgba(0, 212, 255, 0.05), rgba(145, 70, 255, 0.05));
+            border-radius: 50%;
+            transition: all 0.6s ease;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+        }
+
+        .issue-card:hover {
+            transform: translateY(-12px) scale(1.05);
+            box-shadow: 0 25px 50px var(--shadow-lg);
+        }
+
+        .issue-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .issue-card:hover::after {
+            width: 200%;
+            height: 200%;
+        }
+
+        .issue-card:nth-child(1):hover::before {
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-purple));
+        }
+
+        .issue-card:nth-child(2):hover::before {
+            background: linear-gradient(45deg, var(--accent-purple), var(--accent-pink));
+        }
+
+        .issue-card:nth-child(3):hover::before {
+            background: linear-gradient(45deg, var(--accent-pink), var(--accent-orange));
+        }
+
+        .issue-card:nth-child(4):hover::before {
+            background: linear-gradient(45deg, var(--accent-orange), var(--accent-blue));
+        }
+
+        .issue-emoji {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            display: block;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+            z-index: 1;
+        }
+
+        .issue-card:hover .issue-emoji {
+            transform: scale(1.3) rotate(10deg);
+            filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.2));
+        }
+
+        .issue-title {
+            font-weight: 800;
+            color: var(--accent-blue);
+            margin-bottom: 0.8rem;
+            font-size: 1.2rem;
+            position: relative;
+            z-index: 1;
+            transition: color 0.3s ease;
+        }
+
+        .issue-card:hover .issue-title {
+            color: var(--accent-purple);
+        }
+
+        .issue-desc {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.5;
+            position: relative;
+            z-index: 1;
+            transition: color 0.3s ease;
+        }
+
+        .issue-card:hover .issue-desc {
+            color: var(--text-primary);
+        }
+
+        .highlight {
+            background: var(--gradient-accent);
+            padding: 0.3rem 0.8rem;
+            border-radius: 8px;
+            font-weight: 700;
+            color: white;
+            border: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .highlight:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        /* Pulse animation for key elements */
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 212, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0); }
+        }
+
+        .search-icon {
+            animation: pulse 2s infinite;
+        }
+
+        @media (max-width: 1024px) {
+            .issues-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.8rem;
+            }
+
+            .problem-section {
+                padding: 2.5rem;
+            }
+
+            .section-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .section-icon {
+                margin-right: 0;
+                margin-bottom: 1.5rem;
+            }
+
+            .issues-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .floating-elements {
+                display: none;
+            }
+        }
+
+        /* Algorithm Cards Section */
+        .algorithms-section {
+            margin-top: 4rem;
+            padding-top: 3rem;
+            border-top: 2px solid var(--border-color);
+        }
+
+        .algorithms-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .algorithms-header h3 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+
+        .algorithms-header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .algorithms-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .algorithm-card {
+            background: linear-gradient(145deg, var(--card-bg), #f8fafc);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 15px 35px var(--shadow-md);
+            border: 1px solid var(--border-color);
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .algorithm-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient-accent);
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+
+        .algorithm-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px var(--shadow-lg);
+        }
+
+        .algorithm-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .algorithm-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-accent);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: white;
+            transition: all 0.4s ease;
+        }
+
+        .algorithm-card:hover .algorithm-icon {
+            transform: rotate(15deg) scale(1.1);
+        }
+
+        .algorithm-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .algorithm-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .algorithm-details {
+            background: rgba(0, 212, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-top: 1rem;
+        }
+
+        .algorithm-details h4 {
+            color: var(--accent-blue);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .algorithm-details ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .algorithm-details li {
+            margin: 0.8rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: var(--text-secondary);
+        }
+
+        .algorithm-details li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--accent-blue);
+        }
+
+        @media (max-width: 1024px) {
+            .algorithms-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+
+        .comparison-section {
+            padding: 4rem 0;
+            background: linear-gradient(135deg, var(--bg-color) 0%, var(--bg-gradient) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .comparison-section:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .comparison-section .section-title {
+            text-align: center;
+            color: var(--primary-color);
+            font-size: 2.8rem;
+            margin-bottom: 3rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+            padding-bottom: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .comparison-section .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            border-radius: 2px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-query-card {
+            max-width: 584px;
+            margin: 0 auto 5rem;
+            position: relative;
+        }
+
+        .search-bar {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .google-logo {
+            height: 30px;
+            margin-bottom: 1rem;
+        }
+
+        .search-input-container {
+            display: flex;
+            align-items: center;
+            background: #fff;
+            padding: 0.8rem 1.5rem;
+            border-radius: 24px;
+            box-shadow: 0 1px 6px rgba(32,33,36,.28);
+            border: 1px solid rgba(223,225,229,0);
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .search-input-container:hover {
+            box-shadow: 0 1px 6px rgba(32,33,36,.28);
+        }
+
+        .search-input-container i.fa-search {
+            color: #9aa0a6;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .search-input-container input {
+            flex: 1;
+            border: none;
+            background: none;
+            color: #202124;
+            font-size: 1.1rem;
+            font-family: 'Google Sans', Arial, sans-serif;
+            padding: 0.5rem 0;
+            min-width: 0;
+        }
+
+        .search-input-container input:focus {
+            outline: none;
+        }
+
+        .search-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-left: 1rem;
+        }
+
+        .search-btn {
+            background: none;
+            border: none;
+            color: #4285f4;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        }
+
+        .search-btn:hover {
+            background-color: rgba(66, 133, 244, 0.1);
+        }
+
+        .search-btn i {
+            font-size: 1.2rem;
+        }
+
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+
+        @keyframes blink {
+            50% { border-color: transparent }
+        }
+
+        #searchInput {
+            position: relative;
+            overflow: hidden;
+            white-space: nowrap;
+            animation: typing 3.5s steps(40, end),
+                       blink .75s step-end infinite;
+            border-right: 3px solid #4285f4;
+        }
+
+        .comparison-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            position: relative;
+        }
+
+        .comparison-column {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .comparison-column:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .comparison-column h3 {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            position: relative;
+            padding-bottom: 1.2rem;
+            font-weight: 600;
+        }
+
+        .comparison-column h3:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            border-radius: 1.5px;
+        }
+
+        .step-card {
+            background: white;
+            padding: 1.8rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            position: relative;
+            border: 2px solid #e2e8f0;
+            box-shadow: 0 4px 10px rgba(66, 153, 225, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .step-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 6px 15px rgba(66, 153, 225, 0.15);
+            border-color: #4299e1;
+        }
+
+        .step-number {
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            width: 35px;
+            height: 35px;
+            background: #4299e1;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(66, 153, 225, 0.3);
+            font-size: 1.1rem;
+        }
+
+        .step-card h4 {
+            color: #2b6cb0;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .step-card p {
+            color: #4a5568;
+            line-height: 1.7;
+            font-size: 1.05rem;
+        }
+
+        .step-card ul {
+            list-style-type: none;
+            padding-left: 0;
+            margin-top: 0.8rem;
+        }
+
+        .step-card ul li {
+            color: #4a5568;
+            margin-bottom: 0.8rem;
+            padding-left: 1.8rem;
+            position: relative;
+            line-height: 1.5;
+        }
+
+        .step-card ul li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #4299e1;
+            font-size: 1.2rem;
+        }
+
+        .result-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-top: 2.5rem;
+            border: 2px solid #c6f6d5;
+            box-shadow: 0 4px 10px rgba(72, 187, 120, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .result-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(72, 187, 120, 0.15);
+            border-color: #48bb78;
+        }
+
+        .result-card h4 {
+            color: #2f855a;
+            margin-bottom: 1.2rem;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .result-card ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .result-card ul li {
+            color: #38a169;
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+            position: relative;
+            line-height: 1.6;
+            font-size: 1.05rem;
+        }
+
+        .result-card ul li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #48bb78;
+            font-weight: bold;
+        }
+
+        /* Update connecting lines to match the new color scheme */
+        .comparison-container:before,
+        .comparison-container:after {
+            background: linear-gradient(to bottom, #4299e1, #48bb78);
+        }
+
+        .search-query-card:after {
+            background: linear-gradient(to bottom, #4299e1, #48bb78);
+        }
+
+        .search-query-card:before {
+            border-top-color: #48bb78;
+        }
+
+        @media (max-width: 768px) {
+            .comparison-container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .comparison-container:before,
+            .comparison-container:after {
+                display: none;
+            }
+
+            .comparison-section .section-title {
+                font-size: 2.2rem;
+            }
+
+            .search-query-card {
+                margin-bottom: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-elements">
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+    </div>
+
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="search-icon">🔍</div>
+                <h1>IndexWise</h1>
+                <p class="hero-subtitle">Multi-Intent Search Ranking Using Submodular Optimization</p>
+            </div>
+        </div>
+    </section>
+
+    <main class="main-content">
+        <div class="container">
+            <section class="problem-section">
+                <div class="section-header">
+                    <div class="section-icon">🧩</div>
+                    <h2 class="section-title">Problem We're Solving</h2>
+                </div>
+
+                <div class="traditional-issues">
+                    <h3 class="issues-header">Issue with traditional search ranking:</h3>
+                    
+                    <p style="margin-bottom: 1.5rem; text-align: center; color: var(--text-secondary); font-size: 1.1rem;">
+                        Search engines often rank results by overall relevance, not by intent variet.<br>
+                        Top results end up covering <strong>only one or two intents</strong> (e.g., just beginner tutorials).
+                    </p>
+
+                    <p style="text-align: center; margin-bottom: 3rem; font-weight: 700; color: var(--text-primary); font-size: 1.2rem;">This leads to:</p>
+
+                    <div class="issues-grid">
+                        <div class="issue-card">
+                            <span class="issue-emoji">🔁</span>
+                            <div class="issue-title">Redundancy</div>
+                            <div class="issue-desc">Same kind of tutorials shown repeatedly</div>
+                        </div>
+                        <div class="issue-card">
+                            <span class="issue-emoji">❌</span>
+                            <div class="issue-title">Missed intents</div>
+                            <div class="issue-desc">No data science or web dev results</div>
+                        </div>
+                        <div class="issue-card">
+                            <span class="issue-emoji">😒</span>
+                            <div class="issue-title">User frustration</div>
+                            <div class="issue-desc">Not finding what they were actually looking for</div>
+                        </div>
+                        <div class="issue-card">
+                            <span class="issue-emoji">📉</span>
+                            <div class="issue-title">Reduced engagement</div>
+                            <div class="issue-desc">Lower click-through rates and user satisfaction</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="algorithms-section">
+                <div class="algorithms-header">
+                    <h3>Algorithms Used</h3>
+                    <p>Our solution leverages advanced machine learning and optimization techniques to deliver diverse and relevant search results</p>
+                </div>
+
+                <div class="algorithms-grid">
+                    <div class="algorithm-card">
+                        <div class="algorithm-icon">
+                            <i class="fas fa-project-diagram"></i>
+                        </div>
+                        <h3 class="algorithm-title">Semantic Clustering (BERT Embeddings + K-Means)</h3>
+                        <p class="algorithm-description">
+                            Semantic clustering is a method to group similar documents or text snippets based on meaning rather than exact keyword matches. It uses language models like BERT to convert text into high-dimensional embeddings that capture semantic content. These embeddings are then fed into clustering algorithms such as K-Means to find naturally occurring groups. Each group ideally represents a distinct user intent or topic.
+                        </p>
+                        <div class="algorithm-details">
+                            <h4>In this business case:</h4>
+                            <p>It is used to automatically discover and group different sub-intents within search results.</p>
+                        </div>
+                    </div>
+
+                    <div class="algorithm-card">
+                        <div class="algorithm-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3 class="algorithm-title">Relevance Scoring (Cosine Similarity or Transformer-Based Ranker)</h3>
+                        <p class="algorithm-description">
+                            Relevance scoring evaluates how closely a document or search result matches a given query or intent. Simple approaches use cosine similarity between vectorized representations of query and result. Advanced rankers like BERT Ranker use machine learning to predict the likelihood of user satisfaction based on past behavior. The result is a numerical score indicating textual and contextual closeness.
+                        </p>
+                        <div class="algorithm-details">
+                            <h4>In this business case:</h4>
+                            <p>It helps rank each search result by its usefulness to the query and its sub-intents.</p>
+                        </div>
+                    </div>
+
+                    <div class="algorithm-card">
+                        <div class="algorithm-icon">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        <h3 class="algorithm-title">Submodular Optimization (Greedy Approximation Algorithm)</h3>
+                        <p class="algorithm-description">
+                            Submodular optimization is a technique for selecting a diverse and high-value subset from a larger set. It models diminishing returns, meaning that each additional item adds less value if it's similar to what's already selected. A greedy approximation algorithm is used for efficiency — choosing the next item that adds the most marginal gain. This method is common in summarization, recommendation, and information selection.
+                        </p>
+                        <div class="algorithm-details">
+                            <h4>In this business case:</h4>
+                            <p>It ensures the final result set is both relevant and diverse across different user intents.</p>
+                        </div>
+                    </div>
+
+                    <div class="algorithm-card">
+                        <div class="algorithm-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <h3 class="algorithm-title">Document Embedding via Transformers (BERT, SBERT)</h3>
+                        <p class="algorithm-description">
+                            Document embedding transforms text into numerical vectors that represent semantic meaning. Transformers like BERT are pretrained on large corpora to understand word context and sentence relationships. These embeddings are used for downstream tasks like similarity measurement, classification, or clustering. Embedding ensures that semantically similar documents are close in vector space, regardless of word choice.
+                        </p>
+                        <div class="algorithm-details">
+                            <h4>In this business case:</h4>
+                            <p>It enables intent discovery and relevance scoring by providing meaningful representations of the text.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <section class="comparison-section">
+        <h2 class="section-title">Working Comparison</h2>
+        
+        <div class="search-query-card">
+            <div class="search-bar">
+                <img src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png" alt="Google" class="google-logo">
+                <div class="search-input-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" readonly>
+                    <div class="search-buttons">
+                        <button class="search-btn">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                        <button class="search-btn">
+                            <i class="fas fa-camera"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="comparison-container">
+            <div class="comparison-column traditional">
+                <h3>Traditional Search Ranking</h3>
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h4>Initial Document Retrieval</h4>
+                    <p>Search engine retrieves documents based on keyword matching or pretrained relevance scores (e.g., BM25, neural rankers).</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h4>Relevance Scoring</h4>
+                    <p>Each result is scored based on how closely it matches the query, often ignoring the diversity of content. E.g., beginner-level tutorials might dominate the top 10 results if they score highest.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h4>Top-N Selection</h4>
+                    <p>The system selects the top 10 results with the highest scores, regardless of content overlap.</p>
+                </div>
+                <div class="result-card">
+                    <h4>User sees results like:</h4>
+                    <ul>
+                        <li>6 beginner tutorials</li>
+                        <li>3 generic tutorials</li>
+                        <li>1 data science tutorial</li>
+                        <li>(Web dev or advanced topics may be missing entirely)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="comparison-column indexwise">
+                <h3>IndexWise System</h3>
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h4>Initial Document Retrieval</h4>
+                    <p>Retrieves the same pool of top-N results from the standard search backend.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h4>Document Embedding</h4>
+                    <p>Each result is transformed into a semantic vector using BERT or SBERT to capture its actual meaning.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h4>Intent Clustering</h4>
+                    <p>Results are grouped into sub-intents such as:
+                        <ul>
+                            <li>Beginner tutorials</li>
+                            <li>Data science with Python</li>
+                            <li>Web development using Python</li>
+                            <li>Automation scripts, etc.</li>
+                        </ul>
+                    </p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <h4>Relevance Scoring</h4>
+                    <p>Results are scored based on:
+                        <ul>
+                            <li>How relevant they are to the main query</li>
+                            <li>How well they represent their respective sub-intent</li>
+                        </ul>
+                    </p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">5</div>
+                    <h4>Submodular Optimization</h4>
+                    <p>Applies a greedy selection that:
+                        <ul>
+                            <li>Chooses diverse results from different intent clusters</li>
+                            <li>Avoids repeating the same sub-intent</li>
+                        </ul>
+                    </p>
+                </div>
+                <div class="result-card">
+                    <h4>User sees results like:</h4>
+                    <ul>
+                        <li>1 beginner tutorial</li>
+                        <li>1 data science tutorial</li>
+                        <li>1 web dev tutorial</li>
+                        <li>1 automation script</li>
+                        <li>1 advanced/intermediate-level content</li>
+                        <li>(Balanced and useful across user needs)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const text = "Python tutorial";
+            
+            function typeText() {
+                let index = 0;
+                searchInput.value = ''; // Clear the input before starting
+
+                function type() {
+                    if (index < text.length) {
+                        searchInput.value += text.charAt(index);
+                        index++;
+                        setTimeout(type, 100);
+                    } else {
+                        // Wait for 2 seconds before starting again
+                        setTimeout(() => {
+                            typeText(); // Restart the animation
+                        }, 2000);
+                    }
+                }
+
+                type();
+            }
+
+            // Start the animation
+            typeText();
+        });
+    </script>
+</body>
+</html>
