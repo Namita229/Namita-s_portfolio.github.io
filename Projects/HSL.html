@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HSL Extension | NVIDIA Project</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Consolas', 'Monaco', monospace;
+            line-height: 1.6;
+            background: #1e1e1e;
+            min-height: 100vh;
+            color: #d4d4d4;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            background: #252526;
+            border-radius: 8px;
+            padding: 2rem;
+            border: 1px solid #3c3c3c;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #4ec9b0;
+            font-weight: 600;
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            color: #9cdcfe;
+            margin-bottom: 1.5rem;
+            font-weight: 300;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #2d2d2d;
+            color: #4ec9b0;
+            padding: 0.5rem 1.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border: 1px solid #4ec9b0;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: #252526;
+            border-radius: 8px;
+            padding: 2rem;
+            border: 1px solid #3c3c3c;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: #4ec9b0;
+            box-shadow: 0 0 15px rgba(78, 201, 176, 0.1);
+        }
+
+        .card h2 {
+            color: #4ec9b0;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .icon {
+            font-size: 1.5rem;
+        }
+
+        .card p, .card li {
+            margin-bottom: 1rem;
+            color: #d4d4d4;
+            line-height: 1.7;
+        }
+
+        .card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .card li::before {
+            content: ">";
+            margin-right: 0.5rem;
+            color: #4ec9b0;
+        }
+
+        .highlight {
+            background: #2d2d2d;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+            color: #9cdcfe;
+            border: 1px solid #3c3c3c;
+        }
+
+        .full-width-card {
+            grid-column: 1 / -1;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .feature-item {
+            background: #2d2d2d;
+            border-radius: 8px;
+            padding: 1.5rem;
+            border: 1px solid #3c3c3c;
+        }
+
+        .feature-item h3 {
+            color: #4ec9b0;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .feature-item p {
+            color: #d4d4d4;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .impact-section {
+            background: #2d2d2d;
+            border-radius: 8px;
+            padding: 3rem;
+            margin: 2rem 0;
+            text-align: center;
+            border: 1px solid #3c3c3c;
+        }
+
+        .impact-section h2 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: #4ec9b0;
+        }
+
+        .impact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .impact-item {
+            background: #252526;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #3c3c3c;
+        }
+
+        .impact-item h3 {
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            color: #9cdcfe;
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .tech-badge {
+            background: #2d2d2d;
+            color: #4ec9b0;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            border: 1px solid #3c3c3c;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 2rem;
+            background: #252526;
+            border-radius: 8px;
+            border: 1px solid #3c3c3c;
+        }
+
+        .footer p {
+            color: #d4d4d4;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .nvidia-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #4ec9b0;
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        .code-block {
+            background: #1e1e1e;
+            padding: 1rem;
+            border-radius: 4px;
+            border: 1px solid #3c3c3c;
+            margin: 1rem 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            color: #9cdcfe;
+        }
+
+        .keyword {
+            color: #569cd6;
+        }
+
+        .string {
+            color: #ce9178;
+        }
+
+        .comment {
+            color: #6a9955;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🛠️ NVIDIA Project Intern – Hardware Sequence Language (HSL)</h1>
+            <p class="subtitle">VS Code Extension Development for Hardware Verification</p>
+            <div class="badge">Compiler & IDE Integration</div>
+        </header>
+
+        <div class="content-grid">
+            <div class="card">
+                <h2><span class="icon">🧩</span> Overview</h2>
+                <p>As part of a project internship at NVIDIA, I contributed to tooling development for a novel domain-specific language called Hardware Sequence Language (HSL) — designed for specifying hardware event sequences and control logic in NVIDIA's chip verification pipeline.</p>
+                <p>My primary responsibility was to design and implement a VS Code extension that provides developer-friendly features to accelerate adoption of HSL and integrate it into modern development workflows.</p>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon">🧠</span> Problem Statement</h2>
+                <p>While HSL offered a powerful abstraction for specifying hardware behaviors, it lacked modern tooling support. Users had to rely on basic text editors, limiting productivity and increasing the chance of syntax errors.</p>
+                <div class="code-block">
+                    <span class="comment">// Example HSL Code</span><br>
+                    <span class="keyword">sequence</span> verify_clock {<br>
+                    &nbsp;&nbsp;<span class="keyword">wait</span> <span class="string">"10ns"</span>;<br>
+                    &nbsp;&nbsp;assert clock == <span class="string">"1"</span>;<br>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="card full-width-card">
+            <h2><span class="icon">⚙️</span> Key Features & Technologies</h2>
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <h3>🔹 Syntax Highlighting</h3>
+                    <p>Developed a TextMate grammar (.tmLanguage.json) to support color-coded keywords, types, and operators. Enabled custom themes with token scopes for HSL-specific constructs.</p>
+                </div>
+                <div class="feature-item">
+                    <h3>🔹 Autocompletion</h3>
+                    <p>Implemented a Language Server Protocol (LSP) in TypeScript. Parsed HSL files using a lightweight AST and provided contextual suggestions for signal names, sequence operators, and predefined macros.</p>
+                </div>
+                <div class="feature-item">
+                    <h3>🔹 Snippets & Templates</h3>
+                    <p>Created reusable code snippets for common HSL patterns (e.g., assertions, repeat-until blocks). Enabled scaffold generation for HSL test sequences.</p>
+                </div>
+                <div class="feature-item">
+                    <h3>🔹 Debugging Support</h3>
+                    <p>Integrated hooks into simulation environments to set breakpoints at sequence level. Configured launch.json for external simulators with sequence mapping.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="impact-section">
+            <h2>📈 Impact & Results</h2>
+            <div class="impact-grid">
+                <div class="impact-item">
+                    <h3>40% Reduction</h3>
+                    <p>Decreased debugging time for hardware test engineers</p>
+                </div>
+                <div class="impact-item">
+                    <h3>Modern Workflow</h3>
+                    <p>Seamless HSL editing in VS Code</p>
+                </div>
+                <div class="impact-item">
+                    <h3>Team Adoption</h3>
+                    <p>Multiple internal verification teams onboarded</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <div class="card">
+                <h2><span class="icon">🧰</span> Tech Stack</h2>
+                <div class="tech-stack">
+                    <span class="tech-badge">TypeScript</span>
+                    <span class="tech-badge">VS Code API</span>
+                    <span class="tech-badge">LSP</span>
+                    <span class="tech-badge">ANTLR</span>
+                    <span class="tech-badge">JSON Schema</span>
+                    <span class="tech-badge">Git</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon">🔮</span> Future Extensions</h2>
+                <ul>
+                    <li>Integrate formal verification warnings inline using LSP diagnostics</li>
+                    <li>Add hover documentation and go to definition</li>
+                    <li>Implement HSL graph visualization tools</li>
+                    <li>Package extension for open-source release</li>
+                </ul>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p><strong>NVIDIA Hardware Verification</strong></p>
+            <p>Advancing hardware development through modern tooling and developer experience</p>
+            <div class="nvidia-logo">NVIDIA • Hardware Sequence Language</div>
+        </footer>
+    </div>
+</body>
+</html>
