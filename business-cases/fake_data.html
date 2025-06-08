@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake Data in AI Systems - Business Case Study</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary-dark: #0B1426;
+            --primary-blue: #1B2951;
+            --accent-blue: #2E4A8B;
+            --light-blue: #4A6FA5;
+            --pale-yellow: #FFF8DC;
+            --bright-yellow: #F4E04D;
+            --warning-yellow: #FFE066;
+            --text-light: #FFFFFF;
+            --text-dark: #0B1426;
+            --text-muted: #6B7280;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-bg-dark: rgba(27, 41, 81, 0.9);
+            --gradient-primary: linear-gradient(135deg, #0B1426 0%, #1B2951 50%, #2E4A8B 100%);
+            --gradient-secondary: linear-gradient(135deg, #FFF8DC 0%, #F4E04D 100%);
+            --shadow-light: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --shadow-medium: 0 8px 32px rgba(0, 0, 0, 0.15);
+            --shadow-heavy: 0 12px 48px rgba(0, 0, 0, 0.2);
+            --border-radius: 16px;
+            --border-radius-small: 8px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: var(--gradient-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 4rem;
+            padding: 4rem 2rem;
+            background: var(--card-bg);
+            color: var(--text-dark);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-heavy);
+            position: relative;
+            overflow: hidden;
+            animation: slideInDown 0.8s ease-out;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: var(--gradient-secondary);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: var(--gradient-primary);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        .header p {
+            font-size: 1.3rem;
+            color: var(--text-muted);
+            font-weight: 400;
+            animation: fadeInUp 1s ease-out 0.6s both;
+        }
+
+        .definition-card {
+            background: var(--card-bg);
+            padding: 3rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-medium);
+            margin-bottom: 3rem;
+            border-left: 6px solid var(--bright-yellow);
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        .definition-card h2 {
+            color: var(--primary-dark);
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .definition-card p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-muted);
+        }
+
+        .issues-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .issue-card {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            text-align: center;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            animation: slideInUp 0.8s ease-out;
+        }
+
+        .issue-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-heavy);
+        }
+
+        .issue-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-secondary);
+            transform: scaleX(0);
+            transition: var(--transition);
+        }
+
+        .issue-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .issue-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            animation: bounce 2s infinite;
+        }
+
+        .issue-card h3 {
+            color: var(--primary-dark);
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .issue-card p {
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: var(--text-light);
+            font-size: 2.5rem;
+            font-weight: 700;
+            padding: 2rem;
+            background: var(--card-bg-dark);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-medium);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .solutions {
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+        }
+
+        .solution-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-heavy);
+            overflow: hidden;
+            transition: var(--transition);
+            animation: slideInUp 0.8s ease-out;
+        }
+
+        .solution-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .solution-header {
+            background: var(--gradient-primary);
+            color: var(--text-light);
+            padding: 2.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .solution-header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1));
+            animation: slideRight 3s infinite;
+        }
+
+        @keyframes slideRight {
+            0% { transform: translateX(-100px); }
+            100% { transform: translateX(100px); }
+        }
+
+        .solution-icon {
+            font-size: 3rem;
+            background: rgba(255, 248, 220, 0.2);
+            padding: 1.5rem;
+            border-radius: 50%;
+            backdrop-filter: blur(10px);
+            animation: pulse 2s infinite;
+        }
+
+        .solution-header h3 {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .solution-content {
+            padding: 3rem;
+            display: grid;
+            gap: 3rem;
+        }
+
+        .solution-overview {
+            background: var(--pale-yellow);
+            padding: 2.5rem;
+            border-radius: var(--border-radius);
+            border: 2px solid var(--bright-yellow);
+            position: relative;
+        }
+
+        .solution-overview::before {
+            content: '💡';
+            position: absolute;
+            top: -15px;
+            left: 30px;
+            background: var(--bright-yellow);
+            padding: 10px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+        }
+
+        .process-steps {
+            background: var(--card-bg);
+            padding: 3rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+        }
+
+        .process-steps h3 {
+            color: var(--primary-dark);
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .step {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            padding: 2rem;
+            background: var(--pale-yellow);
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--accent-blue);
+            transition: var(--transition);
+            opacity: 0;
+            transform: translateX(-50px);
+            animation: slideInStep 0.6s ease-out forwards;
+        }
+
+        .step:nth-child(2) { animation-delay: 0.1s; }
+        .step:nth-child(3) { animation-delay: 0.2s; }
+        .step:nth-child(4) { animation-delay: 0.3s; }
+        .step:nth-child(5) { animation-delay: 0.4s; }
+        .step:nth-child(6) { animation-delay: 0.5s; }
+
+        @keyframes slideInStep {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .step:hover {
+            transform: translateX(10px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .step-number {
+            background: var(--gradient-primary);
+            color: var(--text-light);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+            animation: rotateIn 0.8s ease-out;
+        }
+
+        .step-content h4 {
+            color: var(--primary-dark);
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+        }
+
+        .visualization-section {
+            background: var(--card-bg);
+            padding: 3rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+        }
+
+        .visualization-section h3 {
+            color: var(--primary-dark);
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .process-flow-container {
+            display: grid;
+            gap: 2rem;
+            margin: 2rem 0;
+            padding: 2rem;
+            background: var(--primary-dark);
+            border-radius: var(--border-radius);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .process-flow-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(244, 224, 77, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(74, 111, 165, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .flow-node {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-medium);
+            text-align: center;
+            transition: var(--transition);
+            border: 2px solid transparent;
+            position: relative;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .flow-node:hover {
+            border-color: var(--bright-yellow);
+            transform: scale(1.05);
+        }
+
+        .node-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            animation: bounce 2s infinite;
+        }
+
+        .sources-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .source-node {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: var(--border-radius-small);
+            text-align: center;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .source-node::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-secondary);
+            animation: loading 2s infinite;
+        }
+
+        @keyframes loading {
+            0% { width: 0%; }
+            50% { width: 100%; }
+            100% { width: 0%; }
+        }
+
+        .reliability-indicator {
+            margin: 1rem 0;
+        }
+
+        .reliability-score {
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .reliability-bar {
+            height: 8px;
+            background: var(--pale-yellow);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .reliability-bar::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            background: var(--gradient-secondary);
+            border-radius: 4px;
+            animation: fillBar 2s ease-out;
+        }
+
+        .high-reliability .reliability-bar::after { width: 95%; }
+        .medium-reliability .reliability-bar::after { width: 80%; }
+        .low-reliability .reliability-bar::after { width: 30%; }
+
+        @keyframes fillBar {
+            from { width: 0%; }
+        }
+
+        .consensus-node, .aggregation-node {
+            background: var(--gradient-primary);
+            color: var(--text-light);
+            animation: pulse 2s infinite;
+        }
+
+        .confidence-display {
+            text-align: center;
+            padding: 2rem;
+            background: var(--pale-yellow);
+            border-radius: var(--border-radius);
+            margin: 2rem 0;
+        }
+
+        .confidence-gauge {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: conic-gradient(var(--bright-yellow) 0deg 331deg, #e5e7eb 331deg 360deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            position: relative;
+            animation: rotateGauge 2s ease-out;
+        }
+
+        @keyframes rotateGauge {
+            from { background: conic-gradient(var(--bright-yellow) 0deg 0deg, #e5e7eb 0deg 360deg); }
+            to { background: conic-gradient(var(--bright-yellow) 0deg 331deg, #e5e7eb 331deg 360deg); }
+        }
+
+        .confidence-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+        .decision-branches {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .decision-node.verified {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: var(--text-light);
+            animation: successPulse 2s infinite;
+        }
+
+        .decision-node.review {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: var(--text-light);
+            animation: warningPulse 2s infinite;
+        }
+
+        @keyframes successPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            50% { box-shadow: 0 0 0 20px rgba(16, 185, 129, 0); }
+        }
+
+        @keyframes warningPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+            50% { box-shadow: 0 0 0 20px rgba(245, 158, 11, 0); }
+        }
+
+        .example-flow {
+            background: var(--pale-yellow);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            margin-top: 2rem;
+            border: 2px solid var(--bright-yellow);
+        }
+
+        .example-flow h4 {
+            color: var(--primary-dark);
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .source-results {
+            display: grid;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .source-result {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--card-bg);
+            border-radius: var(--border-radius-small);
+            align-items: center;
+            animation: slideInResult 0.5s ease-out;
+        }
+
+        @keyframes slideInResult {
+            from { 
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .status.confirmed {
+            color: #059669;
+            font-weight: 600;
+        }
+
+        .status.pending {
+            color: #D97706;
+            font-weight: 600;
+        }
+
+        .final-result {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: var(--border-radius-small);
+            border-left: 4px solid var(--bright-yellow);
+            margin-top: 1rem;
+        }
+
+        .example-scenario {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            margin: 2rem 0;
+        }
+
+        .scenario-content {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            padding: 2rem;
+            background: var(--pale-yellow);
+            border-radius: var(--border-radius);
+        }
+
+        .scenario-icon {
+            font-size: 4rem;
+            flex-shrink: 0;
+            animation: bounce 2s infinite;
+        }
+
+        .feasibility-highlights {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            margin-top: 2rem;
+        }
+
+        .feasibility-highlights h4 {
+            color: var(--primary-dark);
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .highlights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .highlight-item {
+            background: var(--pale-yellow);
+            padding: 2rem;
+            border-radius: var(--border-radius-small);
+            text-align: center;
+            transition: var(--transition);
+            border: 2px solid transparent;
+        }
+
+        .highlight-item:hover {
+            transform: translateY(-5px);
+            border-color: var(--bright-yellow);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .highlight-item i {
+            font-size: 2.5rem;
+            color: var(--accent-blue);
+            margin-bottom: 1rem;
+            animation: bounce 2s infinite;
+        }
+
+        /* User reputation specific styles */
+        .users-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .user-node {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            text-align: center;
+            border: 2px solid transparent;
+            transition: var(--transition);
+        }
+
+        .user-node.high-reputation {
+            border-color: #10B981;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), var(--card-bg));
+        }
+
+        .user-node.low-reputation {
+            border-color: #EF4444;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), var(--card-bg));
+        }
+
+        .user-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .reputation-score {
+            margin: 1rem 0;
+        }
+
+        .score-bar {
+            height: 10px;
+            background: #e5e7eb;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+
+        .score-fill {
+            height: 100%;
+            background: var(--gradient-secondary);
+            border-radius: 5px;
+            transition: width 2s ease;
+            animation: fillScore 2s ease-out;
+        }
+
+        @keyframes fillScore {
+            from { width: 0%; }
+        }
+
+        .feedback-bubble {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem auto;
+            font-size: 1.5rem;
+            animation: bounce 2s infinite;
+        }
+
+        .feedback-bubble.positive {
+            background: #10B981;
+            color: var(--text-light);
+        }
+
+        .feedback-bubble.negative {
+            background: #EF4444;
+            color: var(--text-light);
+        }
+
+        /* Animations */
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 53%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40%, 43% {
+                transform: translateY(-10px);
+            }
+            70% {
+                transform: translateY(-5px);
+            }
+            90% {
+                transform: translateY(-2px);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes rotateIn {
+            from {
+                opacity: 0;
+                transform: rotate(-180deg);
+            }
+            to {
+                opacity: 1;
+                transform: rotate(0deg);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header {
+                padding: 2rem 1rem;
+                margin-bottom: 2rem;
+            }
+
+            .header h1 {
+                font-size: 2.5rem;
+            }
+
+            .solution-content {
+                padding: 2rem;
+            }
+
+            .step {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .scenario-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .highlights-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .issues-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .source-result {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+        }
+
+        /* Loading animation for interactive elements */
+        .loading-pulse {
+            animation: loadingPulse 1.5s infinite;
+        }
+
+        @keyframes loadingPulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        /* Interactive hover states */
+        .interactive-element {
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .interactive-element:hover {
+            transform: scale(1.02);
+        }
+
+        /* Particle animation background */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--bright-yellow);
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: particle-float 6s infinite linear;
+        }
+
+        @keyframes particle-float {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.6;
+            }
+            90% {
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateY(-100px) translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        .ideas-section {
+            margin-top: 4rem;
+            padding: 2rem;
+        }
+
+        .ideas-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .idea-card {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-medium);
+            transition: var(--transition);
+            width: 100%;
+        }
+
+        .pipeline {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: var(--card-bg-dark);
+            border-radius: var(--border-radius);
+            position: relative;
+        }
+
+        .pipeline::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent-blue);
+            z-index: 1;
+        }
+
+        .pipeline-steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            z-index: 2;
+        }
+
+        .pipeline-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 150px;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-light);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .step-circle::after {
+            content: '';
+            position: absolute;
+            width: 100px;
+            height: 2px;
+            background: var(--accent-blue);
+            right: -100px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .pipeline-step:last-child .step-circle::after {
+            display: none;
+        }
+
+        .step-label {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .step-description {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+
+        .step-list {
+            list-style: none;
+            padding: 0;
+            margin: 1.5rem 0;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .step-item::before {
+            content: '🔹';
+            position: absolute;
+            left: 0;
+            color: var(--accent-blue);
+        }
+
+        .step-title {
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .step-content {
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .visual-tip {
+            background: var(--pale-yellow);
+            padding: 1rem;
+            border-radius: var(--border-radius-small);
+            margin-top: 1rem;
+            border-left: 4px solid var(--bright-yellow);
+        }
+
+        .visual-tip h4 {
+            color: var(--primary-dark);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .visual-tip p {
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        .goal-badge {
+            display: inline-block;
+            background: var(--accent-blue);
+            color: var(--text-light);
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius-small);
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .section-divider {
+            margin: 2rem 0;
+            border-top: 2px dashed var(--accent-blue);
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <!-- Particle background -->
+    <div class="particles" id="particles"></div>
+
+    <div class="container">
+        <header class="header">
+            <h1>Fake Data in AI Systems</h1>
+            <p>A critical challenge in modern artificial intelligence requiring innovative solutions</p>
+        </header>
+
+        <div class="definition-card">
+            <h2>Definition & Challenge</h2>
+            <p>AI systems rely on vast amounts of data to learn and make decisions. However, fake, misleading, or manipulated information online can cause AI agents to absorb incorrect knowledge. This business case proposes a real-time verification system to filter out false data before it reaches AI, ensuring reliable and trustworthy AI outputs.</p>
+        </div>
+
+        <div class="issues-grid">
+            <div class="issue-card">
+                <div class="issue-icon">📉</div>
+                <h3>Degraded Model Accuracy</h3>
+                <p>Training on false data leads to incorrect predictions and poor performance, undermining the entire AI system's reliability.</p>
+            </div>
+
+            <div class="issue-card">
+                <div class="issue-icon">⚖️</div>
+                <h3>Biased and Unfair Outcomes</h3>
+                <p>Manipulated information can cause AI to develop harmful biases, affecting fairness and ethical decision-making.</p>
+            </div>
+
+            <div class="issue-card">
+                <div class="issue-icon">🤝</div>
+                <h3>Loss of User Trust</h3>
+                <p>Users lose confidence when AI produces unreliable or misleading results, damaging brand reputation.</p>
+            </div>
+
+            <div class="issue-card">
+                <div class="issue-icon">🔒</div>
+                <h3>Security Risks</h3>
+                <p>Adversarial fake data can be used to exploit or mislead AI systems, creating security vulnerabilities.</p>
+            </div>
+
+            <div class="issue-card">
+                <div class="issue-icon">💰</div>
+                <h3>Increased Cost and Effort</h3>
+                <p>Detecting and correcting errors from fake data requires additional resources and human oversight.</p>
+            </div>
+        </div>
+
+        <section class="ideas-section">
+            <h2 class="section-title">Key Ideas</h2>
+            <div class="ideas-grid">
+                <div class="idea-card">
+                    <h3>Multi-Source Consensus Verification</h3>
+                    <div class="goal-badge">✅ Goal</div>
+                    <p>Prevent isolated or fabricated claims from becoming part of AI training data unless confirmed by multiple reliable sources.</p>
+                    
+                    <h4>Step-by-Step Flow:</h4>
+                    <ul class="step-list">
+                        <li class="step-item">
+                            <div>
+                                <div class="step-title">Input Claim</div>
+                                <div class="step-content">A user asks: "Did NASA find alien microbes on Mars in 2025?"</div>
+                            </div>
+                        </li>
+                        <li class="step-item">
+                            <div>
+                                <div class="step-title">Trusted Source Retrieval</div>
+                                <div class="step-content">Pull from NASA's press releases, Reuters, AP, fact-checking sites, and government databases</div>
+                            </div>
+                        </li>
+                        <li class="step-item">
+                            <div>
+                                <div class="step-title">Semantic & Temporal Consistency</div>
+                                <div class="step-content">Check alignment of meanings and timeframes across sources</div>
+                            </div>
+                        </li>
+                        <li class="step-item">
+                            <div>
+                                <div class="step-title">Weighted Consensus Voting</div>
+                                <div class="step-content">Apply credibility scores (NASA = 1.0, random blog = 0.2)</div>
+                            </div>
+                        </li>
+                        <li class="step-item">
+                            <div>
+                                <div class="step-title">Action</div>
+                                <div class="step-content">Mark as Unverified Claim, flag for moderation, exclude from training</div>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <div class="section-divider"></div>
+
+                    <div class="pipeline">
+                        <div class="pipeline-steps">
+                            <div class="pipeline-step">
+                                <div class="step-circle">1</div>
+                                <div class="step-label">Input Claim</div>
+                                <div class="step-description">"Did NASA find alien microbes on Mars in 2025?"</div>
+                            </div>
+                            <div class="pipeline-step">
+                                <div class="step-circle">2</div>
+                                <div class="step-label">Source Retrieval</div>
+                                <div class="step-description">NASA, Reuters, AP, Fact-checkers</div>
+                            </div>
+                            <div class="pipeline-step">
+                                <div class="step-circle">3</div>
+                                <div class="step-label">Consistency Check</div>
+                                <div class="step-description">Semantic & Temporal Analysis</div>
+                            </div>
+                            <div class="pipeline-step">
+                                <div class="step-circle">4</div>
+                                <div class="step-label">Consensus Voting</div>
+                                <div class="step-description">Weighted Source Credibility</div>
+                            </div>
+                            <div class="pipeline-step">
+                                <div class="step-circle">5</div>
+                                <div class="step-label">Action</div>
+                                <div class="step-description">Verify or Flag for Review</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="idea-card">
+                    <h3>Semantic Fact-Checking</h3>
+                    <div class="goal-badge">✅ Goal</div>
+                    <p>Catch misinformation hidden behind paraphrased or misleading rewordings.</p>
+                    
+                    <h4>Step-by-Step Flow:</h4>
+                    <ul class="step-list">
+                        <li class="step-item">
+                            <div>
+                                <div class="step-title">Input Claim</div>
+                                <div class="step-content">"The Amazon rainforest produces 80% of the world's oxygen."</div>
+                            </div>
+                        </li>
+                        <li class="step-item">
+                            <div>
+                                <div class="step-title">Generate Embedding</div>
+                                <div class="step-content">Use Sentence-BERT to create dense vector representation</div>
+                            </div>
+                        </li>
+                        <li class="step-item">
+                            <div>
+                                <div class="step-title">Retrieve from Vector Store</div>
+                                <div class="step-content">Query verified facts from Britannica, NASA, science journals</div>
+                            </div>
+                        </li>
+                        <li class="step-item">
+                            <div>
+                                <div class="step-title">Apply Threshold</div>
+                                <div class="step-content">Set threshold (e.g., 0.85) for high-confidence matches</div>
+                            </div>
+                        </li>
+                        <li class="step-item">
+                            <div>
+                                <div class="step-title">Action</div>
+                                <div class="step-content">Tag as Inaccurate, display warning, add fact-check references</div>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <div class="section-divider"></div>
+
+                    <div class="pipeline">
+                        <div class="pipeline-steps">
+                            <div class="pipeline-step">
+                                <div class="step-circle">1</div>
+                                <div class="step-label">Input Claim</div>
+                                <div class="step-description">"Amazon produces 80% of oxygen"</div>
+                            </div>
+                            <div class="pipeline-step">
+                                <div class="step-circle">2</div>
+                                <div class="step-label">Generate Embedding</div>
+                                <div class="step-description">Sentence-BERT Vector</div>
+                            </div>
+                            <div class="pipeline-step">
+                                <div class="step-circle">3</div>
+                                <div class="step-label">Vector Search</div>
+                                <div class="step-description">Query Knowledge Base</div>
+                            </div>
+                            <div class="pipeline-step">
+                                <div class="step-circle">4</div>
+                                <div class="step-label">Similarity Check</div>
+                                <div class="step-description">Cosine Similarity 0.65</div>
+                            </div>
+                            <div class="pipeline-step">
+                                <div class="step-circle">5</div>
+                                <div class="step-label">Action</div>
+                                <div class="step-description">Tag as Inaccurate</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="idea-card">
+                    <h3>User Reputation Weighted RL</h3>
+                    <div class="goal-badge">✅ Goal</div>
+                    <p>Ensure AI agents prioritize learning from trusted feedback rather than treating all user input equally.</p>
+                    
+                    <h4>Step-by-Step Flow:</h4>
+                    <ul class="step-list">
+                        <li class="step-item">
+                            <div>
+                                <div class="step-title">Input Feedback</div>
+                                <div class="step-content">Handle corrections from users with different reputation scores</div>
+                            </div>
+                        </li>
+                        <li class="step-item">
+                            <div>
+                                <div class="step-title">Apply Reputation Weights</div>
+                                <div class="step-content">Weight feedback based on user reputation (0.92 vs 0.3)</div>
+                            </div>
+                        </li>
+                        <li class="step-item">
+                            <div>
+                                <div class="step-title">Learning Update</div>
+                                <div class="step-content">Use weighted signal in RL to adjust model behavior</div>
+                            </div>
+                        </li>
+                        <li class="step-item">
+                            <div>
+                                <div class="step-title">Update Reputation</div>
+                                <div class="step-content">Adjust user scores based on feedback accuracy</div>
+                            </div>
+                        </li>
+                        <li class="step-item">
+                            <div>
+                                <div class="step-title">Protection Against Attacks</div>
+                                <div class="step-content">Block or down-weight coordinated false feedback attempts</div>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <div class="section-divider"></div>
+
+                    <div class="pipeline">
+                        <div class="pipeline-steps">
+                            <div class="pipeline-step">
+                                <div class="step-circle">1</div>
+                                <div class="step-label">User Feedback</div>
+                                <div class="step-description">Expert vs New User</div>
+                            </div>
+                            <div class="pipeline-step">
+                                <div class="step-circle">2</div>
+                                <div class="step-label">Weight Application</div>
+                                <div class="step-description">0.92 vs 0.3 Score</div>
+                            </div>
+                            <div class="pipeline-step">
+                                <div class="step-circle">3</div>
+                                <div class="step-label">Model Update</div>
+                                <div class="step-description">RL Weighted Learning</div>
+                            </div>
+                            <div class="pipeline-step">
+                                <div class="step-circle">4</div>
+                                <div class="step-label">Score Update</div>
+                                <div class="step-description">Adjust User Reputation</div>
+                            </div>
+                            <div class="pipeline-step">
+                                <div class="step-circle">5</div>
+                                <div class="step-label">Protection</div>
+                                <div class="step-description">Block Attack Attempts</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
