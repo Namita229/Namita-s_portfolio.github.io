@@ -224,12 +224,10 @@
         }
 
         .challenges-grid {
-           display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
         }
 
         .challenge-card {
@@ -715,40 +713,209 @@
             gap: 40px;
             margin: 30px 0 0 0;
         }
-        .metric-card {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px var(--card-shadow);
-            padding: 24px 36px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-width: 180px;
-            border: 1px solid var(--light-gray);
+
+        /* Data Structures and Algorithms Sections Styles */
+        .section {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 24px;
+            padding: 50px;
+            margin-bottom: 60px;
+            box-shadow: 0 8px 32px var(--card-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            overflow: hidden;
         }
-        .metric-title {
-            color: var(--deep-navy);
-            font-weight: 600;
-            font-size: 1.1em;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+
+        .section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-blue), var(--accent-orange));
+            border-radius: 24px 24px 0 0;
         }
-        .metric-value {
-            color: var(--accent-orange);
-            font-size: 2em;
-            font-family: 'JetBrains Mono', monospace;
+
+        .section:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 48px var(--hover-shadow);
+        }
+
+        .section h2 {
+            font-size: 2.2em;
             font-weight: 700;
+            color: var(--deep-navy);
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
-        @media (max-width: 600px) {
-            .metrics-comparison {
-                flex-direction: column;
-                gap: 16px;
+
+        .section h2 .emoji {
+            font-size: 1.2em;
+        }
+
+        .algorithm-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .algo-card {
+            background: white;
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px var(--card-shadow);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            border-left: 4px solid var(--primary-blue);
+        }
+
+        .algo-card:nth-child(2) { border-left-color: var(--secondary-blue); }
+        .algo-card:nth-child(3) { border-left-color: var(--accent-gold); }
+        .algo-card:nth-child(4) { border-left-color: var(--success-green); }
+
+        .algo-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, transparent, rgba(255,255,255,0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 20px;
+        }
+
+        .algo-card:hover::before {
+            opacity: 1;
+        }
+
+        .algo-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 12px 32px var(--hover-shadow);
+        }
+
+        .algo-card h4 {
+            color: var(--deep-navy);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+
+        .algo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--accent-orange));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .algo-card:nth-child(2) .algo-icon {
+            background: linear-gradient(135deg, var(--secondary-blue), var(--accent-gold));
+        }
+
+        .algo-card:nth-child(3) .algo-icon {
+            background: linear-gradient(135deg, var(--accent-gold), var(--success-green));
+        }
+
+        .algo-card:nth-child(4) .algo-icon {
+            background: linear-gradient(135deg, var(--success-green), var(--primary-blue));
+        }
+
+        .algo-card:hover .algo-icon {
+            transform: scale(1.1) rotate(10deg);
+        }
+
+        .algo-card p {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            font-size: 1.05em;
+            margin-bottom: 15px;
+        }
+
+        .algo-card ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .algo-card ul li {
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            padding-left: 25px;
+            position: relative;
+            line-height: 1.6;
+        }
+
+        .algo-card ul li::before {
+            content: '•';
+            color: var(--primary-blue);
+            position: absolute;
+            left: 0;
+            font-size: 1.2em;
+        }
+
+        .viral-formula {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05), rgba(249, 115, 22, 0.05));
+            padding: 25px;
+            border-radius: 16px;
+            margin-top: 40px;
+            border: 1px solid rgba(37, 99, 235, 0.1);
+            text-align: center;
+        }
+
+        .formula-text {
+            color: var(--text-secondary);
+            font-size: 1.1em;
+            line-height: 1.8;
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: revealUp 0.8s ease forwards;
+        }
+
+        @keyframes revealUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
-            .metric-card {
-                width: 100%;
-                min-width: unset;
+        }
+
+        .algo-card:nth-child(1) { animation-delay: 0.1s; }
+        .algo-card:nth-child(2) { animation-delay: 0.2s; }
+        .algo-card:nth-child(3) { animation-delay: 0.3s; }
+        .algo-card:nth-child(4) { animation-delay: 0.4s; }
+
+        @media (max-width: 768px) {
+            .section {
+                padding: 30px;
+            }
+            
+            .section h2 {
+                font-size: 1.8em;
+            }
+            
+            .algorithm-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .algo-card {
+                padding: 25px;
             }
         }
     </style>
@@ -795,6 +962,123 @@
                 <div class="challenge-card reveal">
                     <h3><i class="fas fa-random"></i> No Traffic Splitting</h3>
                     <p>Traffic cannot be distributed across multiple paths, resulting in inefficient bandwidth use.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Structures Section -->
+        <div class="section fade-in">
+            <h2><span class="emoji">📚</span>Data Structures Used</h2>
+            
+            <div class="algorithm-grid">
+                <div class="algo-card">
+                    <h4><span class="algo-icon">1</span>Graph Representation</h4>
+                    <p><strong>Purpose:</strong> Represent network topology and flow capacities</p>
+                    <p><strong>Implementation Details:</strong></p>
+                    <ul>
+                        <li>Adjacency list for sparse network representation</li>
+                        <li>Edge weights store link capacities</li>
+                        <li>Residual graph for flow calculations</li>
+                        <li>O(V + E) space complexity</li>
+                    </ul>
+                </div>
+
+                <div class="algo-card">
+                    <h4><span class="algo-icon">2</span>Priority Queue</h4>
+                    <p><strong>Purpose:</strong> Efficient path selection in Yen's algorithm</p>
+                    <p><strong>Implementation Details:</strong></p>
+                    <ul>
+                        <li>Binary heap implementation</li>
+                        <li>Keyed by path length/cost</li>
+                        <li>O(log n) for insertions and deletions</li>
+                        <li>O(1) for minimum element access</li>
+                    </ul>
+                </div>
+
+                <div class="algo-card">
+                    <h4><span class="algo-icon">3</span>Residual Network</h4>
+                    <p><strong>Purpose:</strong> Track available flow capacities</p>
+                    <p><strong>Implementation Details:</strong></p>
+                    <ul>
+                        <li>Dynamic graph structure</li>
+                        <li>Forward and backward edges</li>
+                        <li>Capacity updates during flow</li>
+                        <li>O(E) space complexity</li>
+                    </ul>
+                </div>
+
+                <div class="algo-card">
+                    <h4><span class="algo-icon">4</span>Path Storage</h4>
+                    <p><strong>Purpose:</strong> Store and manage multiple paths</p>
+                    <p><strong>Implementation Details:</strong></p>
+                    <ul>
+                        <li>Array of path objects</li>
+                        <li>Each path contains node sequence</li>
+                        <li>Path metadata (length, flow)</li>
+                        <li>O(K * P) space complexity</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Algorithms Section -->
+        <div class="section fade-in">
+            <h2><span class="emoji">⚡</span>Algorithms Used</h2>
+            
+            <div class="algorithm-grid">
+                <div class="algo-card">
+                    <h4><span class="algo-icon">1</span>Yen's K-Shortest Paths</h4>
+                    <p><strong>Purpose:</strong> Find multiple optimal paths</p>
+                    <p><strong>Key Features:</strong></p>
+                    <ul>
+                        <li>Iterative path finding</li>
+                        <li>Path deviation technique</li>
+                        <li>Loop prevention</li>
+                        <li>O(K * N * (M + N log N)) time complexity</li>
+                    </ul>
+                </div>
+
+                <div class="algo-card">
+                    <h4><span class="algo-icon">2</span>Ford-Fulkerson</h4>
+                    <p><strong>Purpose:</strong> Compute maximum flow</p>
+                    <p><strong>Key Features:</strong></p>
+                    <ul>
+                        <li>Residual network updates</li>
+                        <li>Augmenting path finding</li>
+                        <li>Flow conservation</li>
+                        <li>O(E * MaxFlow) time complexity</li>
+                    </ul>
+                </div>
+
+                <div class="algo-card">
+                    <h4><span class="algo-icon">3</span>Breadth-First Search</h4>
+                    <p><strong>Purpose:</strong> Find augmenting paths</p>
+                    <p><strong>Key Features:</strong></p>
+                    <ul>
+                        <li>Level-based traversal</li>
+                        <li>Shortest path guarantee</li>
+                        <li>Residual capacity checking</li>
+                        <li>O(V + E) time complexity</li>
+                    </ul>
+                </div>
+
+                <div class="algo-card">
+                    <h4><span class="algo-icon">4</span>Load Balancing</h4>
+                    <p><strong>Purpose:</strong> Distribute traffic optimally</p>
+                    <p><strong>Key Features:</strong></p>
+                    <ul>
+                        <li>Dynamic path selection</li>
+                        <li>Capacity-aware routing</li>
+                        <li>Load monitoring</li>
+                        <li>O(1) per-packet routing</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="viral-formula" style="margin-top: 30px;">
+                <div class="formula-text">
+                    <strong>Overall Time Complexity: O(K * N * (M + N log N))</strong><br>
+                    <strong>Space Complexity: O(V + E + K * P)</strong>
                 </div>
             </div>
         </div>
