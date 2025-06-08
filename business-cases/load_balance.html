@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Path Load Balancing in Software-Defined Networks</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+        :root {
+            --primary-blue: #2563EB;
+            --secondary-blue: #3B82F6;
+            --accent-orange: #F97316;
+            --deep-navy: #1E3A8A;
+            --soft-navy: #1E40AF;
+            --warm-gray: #64748B;
+            --light-gray: #E2E8F0;
+            --cream: #FFF8F0;
+            --accent-gold: #F59E0B;
+            --success-green: #10B981;
+            --error-red: #EF4444;
+            --text-primary: #1E3A8A;
+            --text-secondary: #475569;
+            --card-shadow: rgba(30, 58, 138, 0.08);
+            --hover-shadow: rgba(30, 58, 138, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #F0F9FF 0%, #F7FAFC 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Subtle geometric background */
+        .geometric-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.03;
+            background-image: 
+                radial-gradient(circle at 25% 25%, var(--primary-blue) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, var(--accent-orange) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        .floating-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .shape {
+            position: absolute;
+            opacity: 0.05;
+            animation: gentleFloat 8s ease-in-out infinite;
+        }
+
+        .shape:nth-child(1) {
+            width: 120px;
+            height: 120px;
+            background: var(--primary-blue);
+            border-radius: 30px;
+            top: 10%;
+            right: 10%;
+            animation-delay: 0s;
+        }
+
+        .shape:nth-child(2) {
+            width: 80px;
+            height: 80px;
+            background: var(--secondary-blue);
+            border-radius: 50%;
+            bottom: 20%;
+            left: 15%;
+            animation-delay: 3s;
+        }
+
+        .shape:nth-child(3) {
+            width: 100px;
+            height: 100px;
+            background: var(--accent-orange);
+            border-radius: 20px;
+            top: 60%;
+            right: 20%;
+            animation-delay: 6s;
+        }
+
+        @keyframes gentleFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(5deg); }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 80px;
+            padding: 60px 0;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-blue), var(--accent-orange));
+            border-radius: 2px;
+        }
+
+        .header h1 {
+            font-size: 3.5em;
+            font-weight: 800;
+            color: var(--deep-navy);
+            margin-bottom: 25px;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, var(--deep-navy) 0%, var(--soft-navy) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: var(--text-secondary);
+            font-weight: 400;
+            margin-top: 20px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .problem-section {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 24px;
+            padding: 50px;
+            margin-bottom: 60px;
+            box-shadow: 0 8px 32px var(--card-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .problem-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-blue), var(--accent-orange));
+            border-radius: 24px 24px 0 0;
+        }
+
+        .problem-section:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 48px var(--hover-shadow);
+        }
+
+        .problem-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 35px;
+            padding-bottom: 25px;
+            border-bottom: 2px solid var(--light-gray);
+        }
+
+        .problem-emoji {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--accent-orange));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 25px;
+            color: white;
+            font-size: 1.5em;
+            transition: all 0.3s ease;
+        }
+
+        .problem-emoji:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .problem-title {
+            font-size: 2.2em;
+            font-weight: 700;
+            color: var(--deep-navy);
+            letter-spacing: -0.5px;
+        }
+
+        .problem-description {
+            font-size: 1.15em;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            line-height: 1.8;
+        }
+
+        .challenges-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+
+        .challenge-card {
+            background: white;
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px var(--card-shadow);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            border-left: 4px solid var(--primary-blue);
+        }
+
+        .challenge-card:nth-child(2) { border-left-color: var(--secondary-blue); }
+        .challenge-card:nth-child(3) { border-left-color: var(--accent-gold); }
+        .challenge-card:nth-child(4) { border-left-color: var(--success-green); }
+
+        .challenge-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, transparent, rgba(255,255,255,0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 20px;
+        }
+
+        .challenge-card:hover::before {
+            opacity: 1;
+        }
+
+        .challenge-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 12px 32px var(--hover-shadow);
+        }
+
+        .challenge-card h3 {
+            color: var(--deep-navy);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+
+        .challenge-card h3 i {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--accent-orange));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .challenge-card:nth-child(2) h3 i {
+            background: linear-gradient(135deg, var(--secondary-blue), var(--accent-gold));
+        }
+
+        .challenge-card:nth-child(3) h3 i {
+            background: linear-gradient(135deg, var(--accent-gold), var(--success-green));
+        }
+
+        .challenge-card:nth-child(4) h3 i {
+            background: linear-gradient(135deg, var(--success-green), var(--primary-blue));
+        }
+
+        .challenge-card:hover h3 i {
+            transform: scale(1.1) rotate(10deg);
+        }
+
+        .challenge-card p {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            font-size: 1.05em;
+        }
+
+        .algorithms-section {
+            margin-top: 100px;
+        }
+
+        .algorithms-title {
+            text-align: center;
+            font-size: 2.8em;
+            font-weight: 700;
+            color: var(--deep-navy);
+            margin-bottom: 60px;
+            position: relative;
+            letter-spacing: -1px;
+        }
+
+        .algorithms-title::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-blue), var(--accent-orange));
+            border-radius: 2px;
+        }
+
+        .algorithms-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 2px;
+            background: var(--light-gray);
+            border-radius: 1px;
+        }
+
+        .algorithm-card {
+            background: white;
+            border-radius: 24px;
+            padding: 45px;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 32px var(--card-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .algorithm-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-blue), var(--accent-orange));
+            border-radius: 24px 24px 0 0;
+        }
+
+        .algorithm-card:nth-child(even)::before {
+            background: linear-gradient(90deg, var(--secondary-blue), var(--accent-gold));
+        }
+
+        .algorithm-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 48px var(--hover-shadow);
+        }
+
+        .algorithm-number {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2em;
+            background: linear-gradient(135deg, var(--primary-blue), var(--accent-orange));
+            color: white;
+            font-family: 'JetBrains Mono', monospace;
+            transition: all 0.3s ease;
+        }
+
+        .algorithm-card:nth-child(even) .algorithm-number {
+            background: linear-gradient(135deg, var(--secondary-blue), var(--accent-gold));
+        }
+
+        .algorithm-number:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .algorithm-name {
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--deep-navy);
+            margin-bottom: 30px;
+            padding-right: 80px;
+            letter-spacing: -0.5px;
+        }
+
+        .algorithm-definition, .algorithm-purpose {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05), rgba(249, 115, 22, 0.05));
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(37, 99, 235, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .algorithm-purpose {
+            background: linear-gradient(135deg, rgba(246, 173, 85, 0.05), rgba(72, 187, 120, 0.05));
+            border-color: rgba(246, 173, 85, 0.1);
+        }
+
+        .algorithm-definition:hover, .algorithm-purpose:hover {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(249, 115, 22, 0.08));
+            border-color: rgba(37, 99, 235, 0.2);
+            transform: translateX(5px);
+        }
+
+        .algorithm-purpose:hover {
+            background: linear-gradient(135deg, rgba(246, 173, 85, 0.08), rgba(72, 187, 120, 0.08));
+            border-color: rgba(246, 173, 85, 0.2);
+        }
+
+        .definition-title, .purpose-title {
+            font-weight: 600;
+            color: var(--deep-navy);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.2em;
+        }
+
+        .definition-title i {
+            color: var(--primary-blue);
+            font-size: 1.1em;
+        }
+
+        .purpose-title i {
+            color: var(--accent-orange);
+            font-size: 1.1em;
+        }
+
+        .algorithm-definition p, .algorithm-purpose p {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            font-size: 1.05em;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5em;
+            }
+            
+            .challenges-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr; /* Two columns */
+                grid-template-rows: auto auto; /* Two rows (auto height) */
+                gap: 10px; /* Optional spacing between grid items */
+
+            }
+            
+            .problem-section, .algorithm-card {
+                padding: 30px;
+            }
+
+            .algorithm-name {
+                font-size: 1.7em;
+                padding-right: 0;
+            }
+
+            .algorithms-title {
+                font-size: 2.2em;
+            }
+        }
+
+        /* Smooth scroll reveal animations */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: revealUp 0.8s ease forwards;
+        }
+
+        @keyframes revealUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .challenge-card:nth-child(1) { animation-delay: 0.1s; }
+        .challenge-card:nth-child(2) { animation-delay: 0.2s; }
+        .challenge-card:nth-child(3) { animation-delay: 0.3s; }
+        .challenge-card:nth-child(4) { animation-delay: 0.4s; }
+
+        /* Simulation Section Styles */
+        .simulation-section {
+            margin-top: 100px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px var(--card-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .simulation-container {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .scenario {
+            flex: 1;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 4px 20px var(--card-shadow);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .scenario:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 32px var(--hover-shadow);
+        }
+
+        .scenario-title {
+            text-align: center;
+            color: var(--deep-navy);
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        .graph-container {
+            position: relative;
+            height: 400px;
+            background: var(--cream);
+            border-radius: 16px;
+            border: 1px solid var(--light-gray);
+            overflow: hidden;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .node {
+            r: 20;
+            stroke-width: 3;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .node.source {
+            fill: var(--success-green);
+            stroke: #0D9488;
+        }
+
+        .node.destination {
+            fill: var(--error-red);
+            stroke: #DC2626;
+        }
+
+        .node.regular {
+            fill: var(--warm-gray);
+            stroke: #475569;
+        }
+
+        .node.visited {
+            fill: var(--accent-gold);
+            stroke: #D97706;
+        }
+
+        .node.current {
+            fill: var(--primary-blue);
+            stroke: var(--deep-navy);
+            r: 25;
+        }
+
+        .edge {
+            stroke: var(--warm-gray);
+            stroke-width: 2;
+            fill: none;
+            transition: all 0.3s ease;
+        }
+
+        .edge.active {
+            stroke: var(--primary-blue);
+            stroke-width: 4;
+        }
+
+        .edge.path {
+            stroke: var(--success-green);
+            stroke-width: 5;
+            stroke-dasharray: 10,5;
+            animation: dash 2s linear infinite;
+        }
+
+        @keyframes dash {
+            to {
+                stroke-dashoffset: -15;
+            }
+        }
+
+        .node-label {
+            text-anchor: middle;
+            dominant-baseline: central;
+            font-weight: bold;
+            font-size: 14px;
+            fill: white;
+            pointer-events: none;
+        }
+
+        .edge-label {
+            text-anchor: middle;
+            dominant-baseline: central;
+            font-size: 12px;
+            font-weight: bold;
+            fill: var(--text-secondary);
+            background: white;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .controls {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, var(--primary-blue), var(--secondary-blue));
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn:disabled {
+            background: var(--warm-gray);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .status {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: var(--light-gray);
+            border-radius: 10px;
+            font-weight: bold;
+            color: var(--text-secondary);
+        }
+
+        .path-info {
+            margin-top: 15px;
+            padding: 15px;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05), rgba(249, 115, 22, 0.05));
+            border-radius: 10px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            border: 1px solid rgba(37, 99, 235, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .simulation-container {
+                flex-direction: column;
+            }
+            
+            .scenario {
+                margin-bottom: 20px;
+            }
+        }
+
+        .metrics-comparison {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 30px 0 0 0;
+        }
+        .metric-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px var(--card-shadow);
+            padding: 24px 36px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 180px;
+            border: 1px solid var(--light-gray);
+        }
+        .metric-title {
+            color: var(--deep-navy);
+            font-weight: 600;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .metric-value {
+            color: var(--accent-orange);
+            font-size: 2em;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+        }
+        @media (max-width: 600px) {
+            .metrics-comparison {
+                flex-direction: column;
+                gap: 16px;
+            }
+            .metric-card {
+                width: 100%;
+                min-width: unset;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="geometric-bg"></div>
+    
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>Multi-Path Load Balancing in Software-Defined Networks</h1>
+            <p class="subtitle">Combining Yen's K-Shortest Paths with Ford-Fulkerson Max-Flow Algorithm</p>
+        </div>
+
+        <div class="problem-section reveal">
+            <div class="problem-header">
+                <div class="problem-emoji">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h2 class="problem-title">The Challenge</h2>
+            </div>
+            <p class="problem-description">
+                In Software-Defined Networks (SDNs), routing decisions directly influence network performance, especially under dynamic and heavy traffic loads. Most SDN controllers use Dijkstra's algorithm to compute the shortest path based on link weights (e.g., hop count or latency). However, this single-path routing approach often results in uneven traffic distribution, congested hotspots, and underutilization of available network resources.
+            </p>
+            
+            <div class="challenges-grid">
+                <div class="challenge-card reveal">
+                    <h3><i class="fas fa-road"></i> Single Path Dependency</h3>
+                    <p>All traffic between a source and destination follows the same shortest path, causing congestion on that path.</p>
+                </div>
+                <div class="challenge-card reveal">
+                    <h3><i class="fas fa-tachometer-alt"></i> No Load Awareness</h3>
+                    <p>Dijkstra doesn't consider real-time link utilization or bandwidth availability.</p>
+                </div>
+                <div class="challenge-card reveal">
+                    <h3><i class="fas fa-network-wired"></i> Link Overload</h3>
+                    <p>Popular shortest paths may become saturated while other viable links stay idle.</p>
+                </div>
+                <div class="challenge-card reveal">
+                    <h3><i class="fas fa-random"></i> No Traffic Splitting</h3>
+                    <p>Traffic cannot be distributed across multiple paths, resulting in inefficient bandwidth use.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="algorithms-section">
+            <h2 class="algorithms-title">Technical Solution Overview</h2>
+            
+            <div class="algorithm-card reveal">
+                <div class="algorithm-number">01</div>
+                <h3 class="algorithm-name">Yen's K-Shortest Paths Algorithm</h3>
+                
+                <div class="algorithm-definition">
+                    <h4 class="definition-title"><i class="fas fa-info-circle"></i> Algorithm Overview</h4>
+                    <p>Yen's algorithm is an extension of Dijkstra's shortest path algorithm that computes not just the single shortest path, but the top K loopless shortest paths from a source node to a destination in a graph. It is especially useful when you want to avoid relying on a single route, which is critical for load balancing, fault tolerance, and resilience in networking.</p>
+                </div>
+
+                <div class="algorithm-definition">
+                    <h4 class="definition-title"><i class="fas fa-cogs"></i> How It Works</h4>
+                    <p><strong>Initial Step:</strong><br>
+                    - Run Dijkstra's algorithm to find the initial (shortest) path P₁<br>
+                    - Add P₁ to the list of shortest paths</p>
+                    
+                    <p><strong>Iterative Steps (for k = 2 to K):</strong><br>
+                    For the (k-1)th path found, generate candidate paths by modifying the path:<br>
+                    - For each node i in the path (except the destination):<br>
+                    &nbsp;&nbsp;• Temporarily remove the edge that leads from node i to its next hop in Pₖ₋₁<br>
+                    &nbsp;&nbsp;• Find a new path from node i to T using Dijkstra again<br>
+                    &nbsp;&nbsp;• Append this subpath to the head of the path from S to i (called the spur path)<br>
+                    - All these new combinations are stored in a min-heap (priority queue) as candidate paths<br>
+                    - The shortest one among the candidates is selected as the next shortest path</p>
+                    
+                    <p><strong>Termination:</strong><br>
+                    Continue until you find K loopless paths or exhaust all possible candidates.</p>
+                </div>
+
+                <div class="algorithm-definition">
+                    <h4 class="definition-title"><i class="fas fa-microchip"></i> Complexity Analysis</h4>
+                    <p>Time complexity: O(K * N * (M + N log N))<br>
+                    Where:<br>
+                    - K = number of paths<br>
+                    - N = number of nodes<br>
+                    - M = number of edges</p>
+                    <p>While it's computationally heavier than Dijkstra's algorithm, it remains efficient enough when K is small (3 to 5), which is typically sufficient in SDN applications.</p>
+                </div>
+                
+                <div class="algorithm-purpose">
+                    <h4 class="purpose-title"><i class="fas fa-bullseye"></i> Role in SDN Load Balancing</h4>
+                    <p>In our SDN implementation, Yen's algorithm serves as the foundation for intelligent traffic distribution by:</p>
+                    <ul style="list-style-type: none; padding-left: 0;">
+                        <li><i class="fas fa-check-circle" style="color: var(--primary-blue);"></i> Providing multiple valid routing paths between nodes</li>
+                        <li><i class="fas fa-check-circle" style="color: var(--primary-blue);"></i> Enabling dynamic traffic shifting away from congested links</li>
+                        <li><i class="fas fa-check-circle" style="color: var(--primary-blue);"></i> Supporting fault tolerance through path diversity</li>
+                        <li><i class="fas fa-check-circle" style="color: var(--primary-blue);"></i> Facilitating load-aware routing decisions</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="algorithm-card reveal">
+                <div class="algorithm-number">02</div>
+                <h3 class="algorithm-name">Ford-Fulkerson Max-Flow Algorithm</h3>
+                
+                <div class="algorithm-definition">
+                    <h4 class="definition-title"><i class="fas fa-info-circle"></i> Algorithm Overview</h4>
+                    <p>The Ford-Fulkerson algorithm is a classical graph algorithm used to compute the maximum flow possible from a source node to a sink node in a flow network. It works by repeatedly finding augmenting paths (paths with available capacity) and pushing as much flow as possible through them, until no more flow can be added. This algorithm is especially powerful for load-aware routing, bandwidth optimization, and congestion avoidance—all critical aspects in Software-Defined Networking (SDN).</p>
+                </div>
+
+                <div class="algorithm-definition">
+                    <h4 class="definition-title"><i class="fas fa-cogs"></i> How It Works</h4>
+                    <p><strong>Network Assumptions:</strong><br>
+                    - Each edge has a capacity<br>
+                    - Flow must follow conservation at intermediate nodes<br>
+                    - Flow on an edge must not exceed its capacity</p>
+                    
+                    <p><strong>Step-by-Step Process:</strong><br>
+                    1. <strong>Initialize:</strong><br>
+                    &nbsp;&nbsp;• Set initial flow on all edges to 0</p>
+                    
+                    <p>2. <strong>Find Augmenting Path:</strong><br>
+                    &nbsp;&nbsp;• Use Breadth-First Search (BFS) or Depth-First Search (DFS)<br>
+                    &nbsp;&nbsp;• Find a path from source to sink with residual capacity > 0</p>
+                    
+                    <p>3. <strong>Augment Flow:</strong><br>
+                    &nbsp;&nbsp;• Determine the minimum residual capacity (bottleneck) along the path<br>
+                    &nbsp;&nbsp;• Increase flow on forward edges<br>
+                    &nbsp;&nbsp;• Decrease flow on reverse edges</p>
+                    
+                    <p>4. <strong>Update Residual Graph:</strong><br>
+                    &nbsp;&nbsp;• Update residual capacities after each augmentation</p>
+                    
+                    <p>5. <strong>Repeat:</strong><br>
+                    &nbsp;&nbsp;• Continue until no more augmenting paths exist</p>
+                </div>
+
+                <div class="algorithm-definition">
+                    <h4 class="definition-title"><i class="fas fa-microchip"></i> Complexity Analysis</h4>
+                    <p><strong>Time Complexity:</strong><br>
+                    - If capacities are integers: O(E × MaxFlow)<br>
+                    - If using Edmonds-Karp (BFS variant): O(VE²)</p>
+                    <p>Where:<br>
+                    - V = number of vertices<br>
+                    - E = number of edges<br>
+                    - MaxFlow = maximum possible flow value</p>
+                    <p>The algorithm is particularly effective when edge capacities are small or bounded, making it well-suited for SDN applications where bandwidth constraints are typically known and manageable.</p>
+                </div>
+                
+                <div class="algorithm-purpose">
+                    <h4 class="purpose-title"><i class="fas fa-bullseye"></i> Role in SDN Load Balancing</h4>
+                    <p>In our SDN implementation, Ford-Fulkerson algorithm enhances traffic management by:</p>
+                    <ul style="list-style-type: none; padding-left: 0;">
+                        <li><i class="fas fa-check-circle" style="color: var(--primary-blue);"></i> Optimizing bandwidth utilization across multiple paths</li>
+                        <li><i class="fas fa-check-circle" style="color: var(--primary-blue);"></i> Preventing link congestion through capacity-aware routing</li>
+                        <li><i class="fas fa-check-circle" style="color: var(--primary-blue);"></i> Enabling dynamic flow redistribution based on network conditions</li>
+                        <li><i class="fas fa-check-circle" style="color: var(--primary-blue);"></i> Supporting efficient traffic splitting across available paths</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="simulation-section">
+            <h2 class="algorithms-title">Comparative Simulation</h2>
+            <div class="simulation-container reveal">
+                <div class="scenario">
+                    <h3 class="scenario-title">Dijkstra's Algorithm</h3>
+                    <div class="graph-container">
+                        <svg id="dijkstra-svg"></svg>
+                    </div>
+                    <div id="dijkstra-info" class="path-info"></div>
+                </div>
+                <div class="scenario">
+                    <h3 class="scenario-title">Yen's K-Shortest + Ford-Fulkerson</h3>
+                    <div class="graph-container">
+                        <svg id="hybrid-svg"></svg>
+                    </div>
+                    <div id="hybrid-info" class="path-info"></div>
+                </div>
+            </div>
+            <div class="metrics-comparison" id="metrics-comparison">
+                <div class="metric-card">
+                    <span class="metric-title"><i class="fas fa-stopwatch"></i> Dijkstra's Time</span>
+                    <span class="metric-value" id="dijkstra-time">-</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-title"><i class="fas fa-stopwatch"></i> Yen+Ford-Fulkerson Time</span>
+                    <span class="metric-value" id="hybrid-time">-</span>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="btn" onclick="startSimulation()">Start Simulation</button>
+                <button class="btn" onclick="resetSimulation()">Reset</button>
+            </div>
+            <div id="status" class="status">Click "Start Simulation" to begin pathfinding comparison</div>
+        </div>
+    </div>
+
+    <script>
+        // Add reveal animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationPlayState = 'running';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Graph data structure
+        const graph = {
+            nodes: [
+                {id: 'A', x: 100, y: 100, label: 'A'},
+                {id: 'B', x: 300, y: 80, label: 'B'},
+                {id: 'C', x: 500, y: 120, label: 'C'},
+                {id: 'D', x: 200, y: 200, label: 'D'},
+                {id: 'E', x: 400, y: 180, label: 'E'},
+                {id: 'F', x: 150, y: 300, label: 'F'},
+                {id: 'G', x: 350, y: 280, label: 'G'},
+                {id: 'H', x: 500, y: 300, label: 'H'},
+                {id: 'I', x: 250, y: 350, label: 'I'},
+                {id: 'J', x: 450, y: 350, label: 'J'}
+            ],
+            edges: [
+                {from: 'A', to: 'B', weight: 4},
+                {from: 'A', to: 'D', weight: 2},
+                {from: 'B', to: 'C', weight: 3},
+                {from: 'B', to: 'E', weight: 1},
+                {from: 'C', to: 'H', weight: 2},
+                {from: 'D', to: 'E', weight: 3},
+                {from: 'D', to: 'F', weight: 4},
+                {from: 'E', to: 'G', weight: 2},
+                {from: 'E', to: 'C', weight: 5},
+                {from: 'F', to: 'G', weight: 1},
+                {from: 'F', to: 'I', weight: 3},
+                {from: 'G', to: 'H', weight: 2},
+                {from: 'G', to: 'J', weight: 4},
+                {from: 'H', to: 'J', weight: 1},
+                {from: 'I', to: 'J', weight: 2}
+            ]
+        };
+        
+        const SOURCE = 'A';
+        const DESTINATION = 'J';
+        
+        let simulationRunning = false;
+        let dijkstraResult = null;
+        let hybridResult = null;
+        
+        // Initialize graphs
+        function initializeGraph(svgId) {
+            const svg = document.getElementById(svgId);
+            svg.innerHTML = '';
+            svg.setAttribute('width', '100%');
+            svg.setAttribute('height', '100%');
+            svg.setAttribute('viewBox', '0 0 600 400'); // Adjust these numbers if needed
+            
+            // Draw edges
+            graph.edges.forEach(edge => {
+                const fromNode = graph.nodes.find(n => n.id === edge.from);
+                const toNode = graph.nodes.find(n => n.id === edge.to);
+                
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', fromNode.x);
+                line.setAttribute('y1', fromNode.y);
+                line.setAttribute('x2', toNode.x);
+                line.setAttribute('y2', toNode.y);
+                line.setAttribute('class', 'edge');
+                line.setAttribute('id', `${svgId}-edge-${edge.from}-${edge.to}`);
+                svg.appendChild(line);
+                
+                // Edge label
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', (fromNode.x + toNode.x) / 2);
+                text.setAttribute('y', (fromNode.y + toNode.y) / 2);
+                text.setAttribute('class', 'edge-label');
+                text.textContent = edge.weight;
+                svg.appendChild(text);
+            });
+            
+            // Draw nodes
+            graph.nodes.forEach(node => {
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', node.x);
+                circle.setAttribute('cy', node.y);
+                circle.setAttribute('class', `node ${node.id === SOURCE ? 'source' : node.id === DESTINATION ? 'destination' : 'regular'}`);
+                circle.setAttribute('id', `${svgId}-node-${node.id}`);
+                svg.appendChild(circle);
+                
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', node.x);
+                text.setAttribute('y', node.y);
+                text.setAttribute('class', 'node-label');
+                text.textContent = node.label;
+                svg.appendChild(text);
+            });
+        }
+        
+        // Dijkstra's Algorithm
+        function dijkstra(graph, source, destination) {
+            const distances = {};
+            const previous = {};
+            const visited = new Set();
+            const queue = [];
+            
+            // Initialize distances
+            graph.nodes.forEach(node => {
+                distances[node.id] = node.id === source ? 0 : Infinity;
+                queue.push(node.id);
+            });
+            
+            const steps = [];
+            
+            while (queue.length > 0) {
+                // Find node with minimum distance
+                queue.sort((a, b) => distances[a] - distances[b]);
+                const current = queue.shift();
+                
+                if (visited.has(current)) continue;
+                visited.add(current);
+                
+                steps.push({
+                    type: 'visit',
+                    node: current,
+                    distance: distances[current]
+                });
+                
+                if (current === destination) break;
+                
+                // Update distances to neighbors
+                const neighbors = graph.edges.filter(edge => edge.from === current || edge.to === current);
+                neighbors.forEach(edge => {
+                    const neighbor = edge.from === current ? edge.to : edge.from;
+                    if (!visited.has(neighbor)) {
+                        const newDist = distances[current] + edge.weight;
+                        if (newDist < distances[neighbor]) {
+                            distances[neighbor] = newDist;
+                            previous[neighbor] = current;
+                            steps.push({
+                                type: 'update',
+                                from: current,
+                                to: neighbor,
+                                distance: newDist
+                            });
+                        }
+                    }
+                });
+            }
+            
+            // Reconstruct path
+            const path = [];
+            let current = destination;
+            while (current !== undefined) {
+                path.unshift(current);
+                current = previous[current];
+            }
+            
+            return {
+                path: path,
+                distance: distances[destination],
+                steps: steps
+            };
+        }
+        
+        // Yen's K-Shortest Paths Algorithm (simplified)
+        function yensKShortest(graph, source, destination, k = 3) {
+            const paths = [];
+            const candidates = [];
+            
+            // First shortest path using Dijkstra
+            const firstPath = dijkstra(graph, source, destination);
+            if (firstPath.path.length > 0) {
+                paths.push(firstPath);
+            }
+            
+            for (let i = 1; i < k && paths.length > 0; i++) {
+                const lastPath = paths[paths.length - 1];
+                
+                for (let j = 0; j < lastPath.path.length - 1; j++) {
+                    const spurNode = lastPath.path[j];
+                    const rootPath = lastPath.path.slice(0, j + 1);
+                    
+                    // Create modified graph
+                    const modifiedEdges = graph.edges.filter(edge => {
+                        // Remove edges that would create already found paths
+                        if (j < lastPath.path.length - 1) {
+                            const nextNode = lastPath.path[j + 1];
+                            if ((edge.from === spurNode && edge.to === nextNode) ||
+                                (edge.to === spurNode && edge.from === nextNode)) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    });
+                    
+                    const modifiedGraph = {
+                        nodes: graph.nodes,
+                        edges: modifiedEdges
+                    };
+                    
+                    const spurPath = dijkstra(modifiedGraph, spurNode, destination);
+                    if (spurPath.path.length > 0) {
+                        const fullPath = [...rootPath.slice(0, -1), ...spurPath.path];
+                        const totalDistance = rootPath.slice(0, -1).reduce((sum, node, idx) => {
+                            if (idx < rootPath.length - 2) {
+                                const edge = graph.edges.find(e => 
+                                    (e.from === rootPath[idx] && e.to === rootPath[idx + 1]) ||
+                                    (e.to === rootPath[idx] && e.from === rootPath[idx + 1])
+                                );
+                                return sum + (edge ? edge.weight : 0);
+                            }
+                            return sum;
+                        }, 0) + spurPath.distance;
+                        
+                        candidates.push({
+                            path: fullPath,
+                            distance: totalDistance,
+                            steps: spurPath.steps
+                        });
+                    }
+                }
+                
+                if (candidates.length === 0) break;
+                
+                candidates.sort((a, b) => a.distance - b.distance);
+                paths.push(candidates.shift());
+            }
+            
+            return paths;
+        }
+        
+        // Ford-Fulkerson Max Flow (simplified for path capacity)
+        function fordFulkerson(graph, source, destination, paths) {
+            // Find the path with maximum flow capacity
+            let maxFlow = 0;
+            let bestPath = null;
+            
+            paths.forEach(pathData => {
+                const path = pathData.path;
+                let minCapacity = Infinity;
+                
+                // Calculate minimum capacity along the path
+                for (let i = 0; i < path.length - 1; i++) {
+                    const edge = graph.edges.find(e => 
+                        (e.from === path[i] && e.to === path[i + 1]) ||
+                        (e.to === path[i] && e.from === path[i + 1])
+                    );
+                    if (edge) {
+                        minCapacity = Math.min(minCapacity, edge.weight);
+                    }
+                }
+                
+                if (minCapacity > maxFlow) {
+                    maxFlow = minCapacity;
+                    bestPath = pathData;
+                }
+            });
+            
+            return {
+                path: bestPath ? bestPath.path : [],
+                maxFlow: maxFlow,
+                distance: bestPath ? bestPath.distance : Infinity
+            };
+        }
+        
+        // Animation functions
+        async function animateDijkstra() {
+            const start = performance.now();
+            const result = dijkstra(graph, SOURCE, DESTINATION);
+            dijkstraResult = result;
+            
+            // Animate step by step
+            for (let step of result.steps) {
+                if (step.type === 'visit') {
+                    const node = document.getElementById(`dijkstra-svg-node-${step.node}`);
+                    if (step.node !== SOURCE && step.node !== DESTINATION) {
+                        node.classList.add('current');
+                        await sleep(800);
+                        node.classList.remove('current');
+                        node.classList.add('visited');
+                    }
+                } else if (step.type === 'update') {
+                    const edge = document.getElementById(`dijkstra-svg-edge-${step.from}-${step.to}`) ||
+                               document.getElementById(`dijkstra-svg-edge-${step.to}-${step.from}`);
+                    if (edge) {
+                        edge.classList.add('active');
+                        await sleep(500);
+                        edge.classList.remove('active');
+                    }
+                }
+            }
+            
+            // Highlight final path
+            for (let i = 0; i < result.path.length - 1; i++) {
+                const edge = document.getElementById(`dijkstra-svg-edge-${result.path[i]}-${result.path[i + 1]}`) ||
+                           document.getElementById(`dijkstra-svg-edge-${result.path[i + 1]}-${result.path[i]}`);
+                if (edge) {
+                    edge.classList.add('path');
+                }
+            }
+            
+            document.getElementById('dijkstra-info').innerHTML = 
+                `<strong>Shortest Path:</strong> ${result.path.join(' → ')}<br>
+                 <strong>Total Distance:</strong> ${result.distance}`;
+            const end = performance.now();
+            document.getElementById('dijkstra-time').textContent = (end - start).toFixed(1) + ' ms';
+        }
+        
+        async function animateHybrid() {
+            const start = performance.now();
+            const kPaths = yensKShortest(graph, SOURCE, DESTINATION, 3);
+            const result = fordFulkerson(graph, SOURCE, DESTINATION, kPaths);
+            hybridResult = result;
+            
+            // Show all k-shortest paths briefly
+            for (let pathData of kPaths) {
+                for (let i = 0; i < pathData.path.length - 1; i++) {
+                    const edge = document.getElementById(`hybrid-svg-edge-${pathData.path[i]}-${pathData.path[i + 1]}`) ||
+                               document.getElementById(`hybrid-svg-edge-${pathData.path[i + 1]}-${pathData.path[i]}`);
+                    if (edge) {
+                        edge.classList.add('active');
+                    }
+                }
+                await sleep(1000);
+                
+                // Clear active edges
+                kPaths.forEach(p => {
+                    for (let i = 0; i < p.path.length - 1; i++) {
+                        const edge = document.getElementById(`hybrid-svg-edge-${p.path[i]}-${p.path[i + 1]}`) ||
+                                   document.getElementById(`hybrid-svg-edge-${p.path[i + 1]}-${p.path[i]}`);
+                        if (edge) {
+                            edge.classList.remove('active');
+                        }
+                    }
+                });
+            }
+            
+            // Highlight the max flow path
+            for (let i = 0; i < result.path.length - 1; i++) {
+                const edge = document.getElementById(`hybrid-svg-edge-${result.path[i]}-${result.path[i + 1]}`) ||
+                           document.getElementById(`hybrid-svg-edge-${result.path[i + 1]}-${result.path[i]}`);
+                if (edge) {
+                    edge.classList.add('path');
+                }
+            }
+            
+            document.getElementById('hybrid-info').innerHTML = 
+                `<strong>K-Shortest Paths Found:</strong> ${kPaths.length}<br>
+                 <strong>Max Flow Path:</strong> ${result.path.join(' → ')}<br>
+                 <strong>Max Flow Capacity:</strong> ${result.maxFlow}<br>
+                 <strong>Path Distance:</strong> ${result.distance}`;
+            const end = performance.now();
+            document.getElementById('hybrid-time').textContent = (end - start).toFixed(1) + ' ms';
+        }
+        
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        
+        async function startSimulation() {
+            if (simulationRunning) return;
+            
+            simulationRunning = true;
+            document.querySelector('.btn').disabled = true;
+            
+            document.getElementById('status').textContent = 'Running Dijkstra\'s Algorithm...';
+            await animateDijkstra();
+            
+            await sleep(1000);
+            
+            document.getElementById('status').textContent = 'Running Yen\'s K-Shortest + Ford-Fulkerson...';
+            await animateHybrid();
+            
+            document.getElementById('status').textContent = 'Simulation Complete! Compare the results above.';
+            document.querySelector('.btn').disabled = false;
+            simulationRunning = false;
+        }
+        
+        function resetSimulation() {
+            simulationRunning = false;
+            document.querySelector('.btn').disabled = false;
+            
+            // Clear all visualizations
+            document.querySelectorAll('.edge').forEach(edge => {
+                edge.classList.remove('active', 'path');
+            });
+            
+            document.querySelectorAll('.node').forEach(node => {
+                node.classList.remove('visited', 'current');
+            });
+            
+            document.getElementById('dijkstra-info').innerHTML = '';
+            document.getElementById('hybrid-info').innerHTML = '';
+            document.getElementById('status').textContent = 'Click "Start Simulation" to begin pathfinding comparison';
+            document.getElementById('dijkstra-time').textContent = '-';
+            document.getElementById('hybrid-time').textContent = '-';
+        }
+        
+        // Initialize on page load
+        window.addEventListener('load', () => {
+            initializeGraph('dijkstra-svg');
+            initializeGraph('hybrid-svg');
+        });
+    </script>
+</body>
+</html>
