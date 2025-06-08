@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TNBC Metastasis Prediction | Women in Data Science</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #f8e1e4 0%, #f5d7d9 100%);
+            min-height: 100vh;
+            color: #4a4a4a;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 3rem;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #e8a4a4, #d88a8a, #c47a7a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 1.5rem;
+            font-weight: 300;
+        }
+
+        .badge {
+            display: inline-block;
+            background: linear-gradient(45deg, #e8a4a4, #d88a8a);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 15px rgba(232, 164, 164, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 3rem 0;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #d88a8a;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.08);
+        }
+
+        .card h2 {
+            color: #d88a8a;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .icon {
+            font-size: 1.5rem;
+        }
+
+        .card p, .card li {
+            margin-bottom: 1rem;
+            color: #4a4a4a;
+            line-height: 1.7;
+        }
+
+        .card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .card li::before {
+            content: "🌸";
+            margin-right: 0.5rem;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, rgba(232, 164, 164, 0.1) 0%, rgba(216, 138, 138, 0.1) 100%);
+            padding: 0.2rem 0.5rem;
+            border-radius: 5px;
+            font-weight: 600;
+            color: #d88a8a;
+        }
+
+        .full-width-card {
+            grid-column: 1 / -1;
+        }
+
+        .methodology {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .method-step {
+            background: linear-gradient(135deg, rgba(232, 164, 164, 0.1), rgba(216, 138, 138, 0.1));
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .method-step h3 {
+            color: #d88a8a;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .method-step p {
+            color: #4a4a4a;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .impact-section {
+            background: linear-gradient(135deg, #e8a4a4, #d88a8a);
+            color: white;
+            border-radius: 20px;
+            padding: 3rem;
+            margin: 2rem 0;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(232, 164, 164, 0.3);
+        }
+
+        .impact-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: white;
+        }
+
+        .impact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .impact-item {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 1.5rem;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+
+        .impact-item:hover {
+            transform: translateY(-3px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .impact-item h3 {
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .footer p {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .wids-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #d88a8a, #e8a4a4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .methodology {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .dna-animation {
+            position: relative;
+            display: inline-block;
+            animation: rotate 3s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .sparkle {
+            display: inline-block;
+            animation: sparkle 1.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes sparkle {
+            0% { opacity: 0.3; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1.2); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1><span class="dna-animation">🧬</span> Predicting Metastasis in Triple-Negative Breast Cancer</h1>
+            <p class="subtitle">Empowering Early Detection Through Data Science</p>
+            <div class="badge">
+                <span class="sparkle">✨</span> WiDS Datathon 2024 - Global Rank #54 <span class="sparkle">✨</span>
+            </div>
+        </header>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number">0.87</div>
+                <div class="stat-label">F1-Score Achieved</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">54</div>
+                <div class="stat-label">Global Ranking</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">1800+</div>
+                <div class="stat-label">Competing Teams</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">5-Fold</div>
+                <div class="stat-label">Cross Validation</div>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <div class="card">
+                <h2><span class="icon">🎯</span> Problem Statement</h2>
+                <p>Triple-Negative Breast Cancer (TNBC) represents one of the most aggressive breast cancer subtypes, characterized by high metastasis rates and limited treatment options. Our mission was to predict the <span class="highlight">metastasis period</span> - determining how soon after diagnosis the cancer spreads to other parts of the body.</p>
+                <p>This challenge was part of the prestigious <strong>Women in Data Science (WiDS) Datathon 2024</strong>, collaborating with Stanford University and the Vera C. Rubin Observatory to tackle real-world healthcare challenges.</p>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon">📊</span> Dataset Challenges</h2>
+                <p>We worked with a comprehensive de-identified dataset featuring:</p>
+                <ul>
+                    <li><strong>Clinical features:</strong> Age, diagnosis stage, tumor characteristics</li>
+                    <li><strong>Pathological markers:</strong> Hormone receptor status, mitotic count, Ki-67 index</li>
+                    <li><strong>Binary outcome:</strong> Early (&lt;1 year) vs Late (≥1 year) metastasis</li>
+                </ul>
+                <p>Key challenges included <span class="highlight">class imbalance</span>, missing values, and multimodal feature types requiring sophisticated preprocessing strategies.</p>
+            </div>
+        </div>
+
+        <div class="card full-width-card">
+            <h2><span class="icon">🔬</span> Methodology & Innovation</h2>
+            <div class="methodology">
+                <div class="method-step">
+                    <h3>1. Data Preprocessing</h3>
+                    <p>Implemented robust imputation strategies using median for continuous and mode for categorical variables. Applied MinMaxScaler normalization and one-hot encoding, followed by SMOTE for class balance.</p>
+                </div>
+                <div class="method-step">
+                    <h3>2. Feature Engineering</h3>
+                    <p>Created innovative derived metrics like tumor size to age ratio and lymph node density. Used SHAP analysis post-training to verify feature impact and ensure model interpretability.</p>
+                </div>
+                <div class="method-step">
+                    <h3>3. Ensemble Modeling</h3>
+                    <p>Deployed multiple algorithms including XGBoost, LightGBM, Random Forest, and a stacked classifier with Logistic Regression as meta-model for optimal performance.</p>
+                </div>
+                <div class="method-step">
+                    <h3>4. Validation Strategy</h3>
+                    <p>Employed 5-fold Stratified Cross Validation for robust performance assessment, focusing on F1-score as primary metric alongside ROC-AUC, Precision, and Recall.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="impact-section">
+            <h2>🌟 Clinical Impact & Future Vision</h2>
+            <p>Our model demonstrates how classical machine learning can support oncologists with interpretable and actionable insights in cancer progression, prioritizing patient safety through high recall rates.</p>
+            
+            <div class="impact-grid">
+                <div class="impact-item">
+                    <h3>🎯 Early Intervention</h3>
+                    <p>Enable timely treatment strategies for high-risk patients</p>
+                </div>
+                <div class="impact-item">
+                    <h3>🔄 Personalized Care</h3>
+                    <p>Support tailored treatment plans based on individual risk profiles</p>
+                </div>
+                <div class="impact-item">
+                    <h3>📈 Optimized Monitoring</h3>
+                    <p>Adjust follow-up frequency for enhanced patient outcomes</p>
+                </div>
+                <div class="impact-item">
+                    <h3>🔬 Research Advancement</h3>
+                    <p>Contribute to TNBC research and treatment protocol development</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <div class="card">
+                <h2><span class="icon">🏆</span> Key Achievements</h2>
+                <ul>
+                    <li>Achieved exceptional <span class="highlight">F1-Score of 0.87</span> on internal validation</li>
+                    <li>Secured <span class="highlight">Global Rank #54</span> among 1800+ international teams</li>
+                    <li>Developed highly interpretable model suitable for clinical deployment</li>
+                    <li>Minimized false negatives - critical for oncology applications</li>
+                    <li>Demonstrated robustness across diverse patient populations</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon">🚀</span> Future Roadmap</h2>
+                <ul>
+                    <li>Extend to multi-class classification (early, intermediate, late metastasis)</li>
+                    <li>Incorporate genomics data and mutation profiles for deeper insights</li>
+                    <li>Integrate radiomics features from medical imaging</li>
+                    <li>Collaborate with oncologists for real-world validation studies</li>
+                    <li>Develop EMR system integration for clinical deployment</li>
+                </ul>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p><strong>Celebrating Women in Data Science</strong></p>
+            <p>This project represents the power of diverse perspectives in tackling healthcare challenges through innovative data science solutions.</p>
+            <div class="wids-logo">Women in Data Science • Stanford University • Vera C. Rubin Observatory</div>
+        </footer>
+    </div>
+</body>
+</html>
