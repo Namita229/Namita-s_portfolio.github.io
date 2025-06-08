@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detecting Coordinated Review Manipulation in Google Play</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            padding: 40px 0;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .badges {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .badge {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .content-section {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            margin: 30px 0;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .section-title {
+            color: #1a73e8;
+            font-size: 2em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            font-size: 1.2em;
+        }
+
+        .problem-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 25px 0;
+        }
+
+        .problem-card {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(238, 90, 82, 0.3);
+        }
+
+        .solution-card {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+        }
+
+        .need-card {
+            background: linear-gradient(135deg, #ffd93d, #ff6b35);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(255, 217, 61, 0.3);
+        }
+
+        .card-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .algorithm-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .algorithm-table th {
+            background: linear-gradient(135deg, #4285f4, #34a853);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .algorithm-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .algorithm-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .pipeline-container {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 25px 0;
+        }
+
+        .pipeline-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .pipeline-step {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            flex: 1;
+            min-width: 150px;
+            position: relative;
+            border-left: none;
+        }
+
+        .pipeline-step::after {
+            content: '→';
+            position: absolute;
+            right: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5em;
+            color: #4285f4;
+        }
+
+        .pipeline-step:last-child::after {
+            display: none;
+        }
+
+        .step-number {
+            background: #4285f4;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: bold;
+        }
+
+        .graph-simulation {
+            background: #fff;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 25px 0;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .graph-nodes {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .node-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .node {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9em;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+
+        .reviewer-node {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+        }
+
+        .app-node {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+        }
+
+        .suspicious-node {
+            background: linear-gradient(135deg, #ffd93d, #ff6b35);
+            animation: suspicious-pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes suspicious-pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 217, 61, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(255, 217, 61, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 217, 61, 0); }
+        }
+
+        .connection-line {
+            height: 2px;
+            background: linear-gradient(90deg, #4285f4, #34a853);
+            margin: 20px 0;
+            border-radius: 2px;
+            animation: flow 2s infinite;
+        }
+
+        @keyframes flow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .efficiency-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .efficiency-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .efficiency-metric {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .summary-section {
+            background: linear-gradient(135deg, #4285f4, #34a853);
+            color: white;
+            text-align: center;
+            padding: 40px;
+            border-radius: 15px;
+            margin-top: 40px;
+        }
+
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .floating-element {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            animation: float 6s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.3; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 0.6; }
+        }
+
+        .references {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #4285f4;
+        }
+
+        .references ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .references li {
+            padding: 5px 0;
+            color: #555;
+        }
+
+        .references li::before {
+            content: "📚 ";
+            margin-right: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .pipeline-steps {
+                flex-direction: column;
+            }
+            
+            .pipeline-step::after {
+                content: '↓';
+                bottom: -15px;
+                top: auto;
+                right: 50%;
+                transform: translateX(50%);
+            }
+            
+            .graph-nodes {
+                flex-direction: column;
+            }
+        }
+
+        .cluster-info {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .cluster-card {
+            text-align: left;
+            padding: 15px;
+        }
+        .cluster-card h4 {
+            color: #1a73e8;
+            margin-bottom: 15px;
+        }
+        .cluster-card ul {
+            list-style: none;
+            padding: 0;
+        }
+        .cluster-card li {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .cluster-badge {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            margin-right: 10px;
+        }
+        .suspicious-node {
+            animation: suspicious-pulse 1s infinite;
+            box-shadow: 0 0 15px rgba(255, 217, 61, 0.5);
+        }
+        @keyframes suspicious-pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 217, 61, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(255, 217, 61, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 217, 61, 0); }
+        }
+
+        .scenario-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border-left: 5px solid #1a73e8;
+        }
+
+        .pipeline-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .pipeline-step {
+            width: 100%;
+            max-width: 800px;
+            margin: 0;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease;
+            border: 1px solid rgba(26, 115, 232, 0.1);
+        }
+
+        .pipeline-step:hover {
+            transform: translateY(-5px);
+        }
+
+        .pipeline-arrow {
+            font-size: 28px;
+            color: #1a73e8;
+            margin: -15px 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .result-box {
+            margin-top: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            border-left: 4px solid #34a853;
+        }
+
+        .log-table {
+            overflow-x: auto;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .log-table table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .log-table th, .log-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .log-table th {
+            background: #1a73e8;
+            color: white;
+            font-weight: 600;
+        }
+
+        .log-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .log-table tr:hover {
+            background: #e9ecef;
+        }
+
+        .bipartite-graph {
+            margin: 20px 0;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .graph-nodes {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 350px;
+            position: relative;
+            padding: 20px;
+        }
+
+        .node-group {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .node-group h4 {
+            color: #1a73e8;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            background: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .node {
+            width: 70px;
+            height: 70px;
+            background: white;
+            border: 3px solid #1a73e8;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            position: relative;
+            font-size: 0.9em;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            z-index: 2;
+        }
+
+        .node.suspicious {
+            border-color: #ea4335;
+            background: #fce8e6;
+            color: #ea4335;
+        }
+
+        .node.normal {
+            border-color: #34a853;
+            background: #e6f4ea;
+            color: #34a853;
+        }
+
+        .node.app {
+            border-color: #1a73e8;
+            background: #e8f0fe;
+            color: #1a73e8;
+        }
+
+        .edges-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .edge {
+            position: absolute;
+            height: 3px;
+            background: #1a73e8;
+            transform-origin: left center;
+            opacity: var(--weight);
+            transition: opacity 0.3s ease;
+        }
+
+        .edge::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            border-left: 8px solid #1a73e8;
+            border-top: 4px solid transparent;
+            border-bottom: 4px solid transparent;
+        }
+
+        .edge.suspicious {
+            background: #ea4335;
+        }
+
+        .edge.suspicious::after {
+            border-left-color: #ea4335;
+        }
+
+        .edge.normal {
+            background: #34a853;
+        }
+
+        .edge.normal::after {
+            border-left-color: #34a853;
+        }
+
+        .cluster {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid #1a73e8;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .cluster.suspicious {
+            border-color: #ea4335;
+        }
+
+        .cluster.normal {
+            border-color: #34a853;
+        }
+
+        .cluster-nodes {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .cluster-label {
+            font-weight: bold;
+            color: #1a73e8;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .cluster-label.suspicious {
+            color: #ea4335;
+        }
+
+        .cluster-label.normal {
+            color: #34a853;
+        }
+
+        .result-section {
+            margin-top: 40px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .result-section h3 {
+            color: #1a73e8;
+            margin-bottom: 20px;
+        }
+
+        .result-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .result-section li {
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            padding-left: 40px;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .result-section li::before {
+            content: '✓';
+            position: absolute;
+            left: 15px;
+            color: #34a853;
+            font-size: 1.2em;
+        }
+
+        .action-cards {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .action-card {
+            text-align: center;
+            padding: 25px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            flex: 1;
+            max-width: 200px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .action-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .action-card .icon {
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+
+        .action-card h4 {
+            color: #1a73e8;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-elements">
+        <div class="floating-element" style="left: 10%; animation-delay: 0s;"></div>
+        <div class="floating-element" style="left: 20%; animation-delay: 1s;"></div>
+        <div class="floating-element" style="left: 30%; animation-delay: 2s;"></div>
+        <div class="floating-element" style="left: 40%; animation-delay: 3s;"></div>
+        <div class="floating-element" style="left: 50%; animation-delay: 4s;"></div>
+        <div class="floating-element" style="left: 60%; animation-delay: 5s;"></div>
+        <div class="floating-element" style="left: 70%; animation-delay: 1.5s;"></div>
+        <div class="floating-element" style="left: 80%; animation-delay: 2.5s;"></div>
+        <div class="floating-element" style="left: 90%; animation-delay: 3.5s;"></div>
+    </div>
+
+    <div class="container">
+        <header class="header">
+            <h1>Detecting Coordinated Review Manipulation</h1>
+            <p class="subtitle">Advanced Algorithmic Detection for Google Play Store</p>
+            <div class="badges">
+                <span class="badge">App Store Abuse Prevention</span>
+                <span class="badge">Trust & Safety</span>
+                <span class="badge">Google Play Protect Team</span>
+            </div>
+        </header>
+
+        <section class="content-section">
+            <h2 class="section-title">
+                <span class="icon">🚨</span>
+                Business Case & Problem Statement
+            </h2>
+            <div class="problem-grid">
+                <div class="problem-card">
+                    <div class="card-title">Current Problem</div>
+                    <p>Manipulated app reviews generated by botnets and fake accounts are used to artificially boost or demote apps on Google Play. These reviews are coordinated, happen in bursts, and often involve shared bot accounts across apps.</p>
+                </div>
+                <div class="solution-card">
+                    <div class="card-title">Current Weakness</div>
+                    <p>Google's ML-based filters handle individual review authenticity but miss coordinated attacks spread across multiple apps/accounts — especially when bots imitate human-like variation.</p>
+                </div>
+                <div class="need-card">
+                    <div class="card-title">Business Need</div>
+                    <p>Build an algorithmic detection layer that flags abnormal temporal bursts, colluding app-reviewer clusters, and duplicate reviewer behavior.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2 class="section-title">
+                <span class="icon">🧠</span>
+                Algorithm Implementation & Data Structures
+            </h2>
+            <table class="algorithm-table">
+                <thead>
+                    <tr>
+                        <th>Component</th>
+                        <th>Algorithm</th>
+                        <th>Purpose</th>
+                        <th>Data Structure</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>User-Review Matching</td>
+                        <td><strong>XOR Fingerprinting</strong></td>
+                        <td>Each user account is assigned a compact binary signature by applying XOR operations over the app IDs and timestamps it has interacted with. This helps us quickly detect bot accounts reused across apps with near-identical review activity. These signatures are stored and compared in constant time.</td>
+                        <td>Hash Tables</td>
+                    </tr>
+                    <tr>
+                        <td>Review Timeline</td>
+                        <td><strong>MO's Algorithm</strong></td>
+                        <td>For each app, all reviews are sorted chronologically. MO's algorithm is then used to process batch queries that ask: "How many new reviewers appeared between time t1 and t2?" or "What's the peak review frequency in a window of 1 hour?" This highlights temporal burst patterns characteristic of fake review campaigns.</td>
+                        <td>Arrays + Query Blocks</td>
+                    </tr>
+                    <tr>
+                        <td>App–Reviewer Graph</td>
+                        <td><strong>Min-Cut / Max-Flow</strong></td>
+                        <td>A bipartite graph is constructed where left nodes are users and right nodes are apps. An edge connects a user to every app they've reviewed. Min-Cut / Max-Flow separates suspicious dense clusters (e.g., 10 users reviewing 10 apps) that wouldn't exist naturally. These clusters are flagged for manual audit or auto-removal.</td>
+                        <td>Adjacency Lists + Flow Network</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="data-structures-section" style="margin-top: 40px;">
+                <h3 class="section-title" style="font-size: 1.5em; margin-bottom: 20px;">
+                    <span class="icon">🧱</span>
+                    Data Structures Used
+                </h3>
+                <div class="problem-grid">
+                    <div class="solution-card">
+                        <div class="card-title">Hash Tables</div>
+                        <p>Used to map each user ID to its XOR-generated fingerprint. Allows O(1) time checks for whether a new reviewer's behavior matches previously known bots.</p>
+                    </div>
+                    <div class="need-card">
+                        <div class="card-title">Adjacency Lists</div>
+                        <p>Stores the bipartite graph between reviewers and apps. Adjacency list is space-efficient for sparse graphs (most users review only a few apps) and supports quick traversal for the max-flow algorithm.</p>
+                    </div>
+                    <div class="problem-card">
+                        <div class="card-title">Arrays + Query Blocks</div>
+                        <p>MO's algorithm divides the timeline into blocks (√N size) and stores the count of unique reviewers per block. Arrays track review frequency over time; helps process multiple burst-detection queries efficiently.</p>
+                    </div>
+                    <div class="solution-card">
+                        <div class="card-title">Flow Network</div>
+                        <p>Built with a source, sink, reviewer nodes, and app nodes. Capacities are defined (e.g., how many apps a bot typically reviews). Max-flow helps separate well-connected suspicious subgraphs from the rest of the network.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2 class="section-title">
+                <span class="icon">📊</span>
+                Detection Pipeline
+            </h2>
+            
+            <div class="scenario-section">
+                <h3>🧾 Scenario</h3>
+                <p>A shady app developer launches a new app called "BoostFit Pro" and hires a team of click-farm reviewers to spam 5-star reviews within 12 hours of launch. The reviewers use cloned accounts and review multiple fitness apps using copy-pasted or slightly altered review text.</p>
+            </div>
+
+            <div class="pipeline-container">
+                <!-- Review Logs -->
+                <div class="pipeline-step">
+                    <div class="step-number">1</div>
+                    <h3>Review Logs</h3>
+                    <div class="log-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Reviewer ID</th>
+                                    <th>App ID</th>
+                                    <th>Timestamp</th>
+                                    <th>Review Text</th>
+                                    <th>Rating</th>
+                                    <th>IP Address</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>R101</td>
+                                    <td>BoostFit Pro</td>
+                                    <td>2025-06-07 12:05</td>
+                                    <td>"Amazing app! Life-changer"</td>
+                                    <td>5</td>
+                                    <td>192.168.1.10</td>
+                                </tr>
+                                <tr>
+                                    <td>R102</td>
+                                    <td>BoostFit Pro</td>
+                                    <td>2025-06-07 12:07</td>
+                                    <td>"Amazing app! Life-changer"</td>
+                                    <td>5</td>
+                                    <td>192.168.1.11</td>
+                                </tr>
+                                <tr>
+                                    <td>R103</td>
+                                    <td>BoostFit Pro</td>
+                                    <td>2025-06-07 12:09</td>
+                                    <td>"Amazing app!! Life-changer"</td>
+                                    <td>5</td>
+                                    <td>192.168.1.10</td>
+                                </tr>
+                                <tr>
+                                    <td>R104</td>
+                                    <td>GymGenius</td>
+                                    <td>2025-06-07 12:10</td>
+                                    <td>"Must try! Really helpful"</td>
+                                    <td>5</td>
+                                    <td>192.168.1.10</td>
+                                </tr>
+                                <tr>
+                                    <td>R105</td>
+                                    <td>BoostFit Pro</td>
+                                    <td>2025-06-07 12:11</td>
+                                    <td>"Amazing app! Life-changer"</td>
+                                    <td>5</td>
+                                    <td>192.168.1.11</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="pipeline-arrow">↓</div>
+
+                <!-- XOR Fingerprinting -->
+                <div class="pipeline-step">
+                    <div class="step-number">2</div>
+                    <h3>XOR Fingerprinting</h3>
+                    <div class="xor-visualization">
+                        <div class="xor-input">
+                            <div class="binary-string">1010 1100</div>
+                            <div class="xor-symbol">⊕</div>
+                            <div class="binary-string">1100 1010</div>
+                        </div>
+                        <div class="xor-result">
+                            <div class="arrow">↓</div>
+                            <div class="binary-string">0110 0110</div>
+                        </div>
+                    </div>
+                    <div class="result-box">
+                        <p>Reviewers R101, R102, R103, and R105 produce very similar XOR hashes (only 1–2 bits different).</p>
+                        <p><strong>Result:</strong> They are grouped as near-clones.</p>
+                    </div>
+                </div>
+                <div class="pipeline-arrow">↓</div>
+
+                <!-- Clone Detection -->
+                <div class="pipeline-step">
+                    <div class="step-number">3</div>
+                    <h3>Clone Detection</h3>
+                    <div class="decision-tree">
+                        <div class="decision-node">
+                            <div class="question">Similarity > 95%?</div>
+                            <div class="branches">
+                                <div class="branch yes">
+                                    <span class="label">Yes</span>
+                                    <div class="result">R101, R102, R103, R105 marked as clones</div>
+                                </div>
+                                <div class="branch no">
+                                    <span class="label">No</span>
+                                    <div class="result">R104 passed for behavioral checks</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pipeline-arrow">↓</div>
+
+                <!-- Review Blocking -->
+                <div class="pipeline-step">
+                    <div class="step-number">4</div>
+                    <h3>Review Blocking</h3>
+                    <div class="blocking-flow">
+                        <div class="block-option">
+                            <div class="icon">🚫</div>
+                            <h4>Blocked Reviews</h4>
+                            <p>Reviews by clone accounts are flagged and delayed</p>
+                        </div>
+                        <div class="block-option">
+                            <div class="icon">📉</div>
+                            <h4>No Rating Boost</h4>
+                            <p>Developer doesn't see ratings boost despite submissions</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="pipeline-arrow">↓</div>
+
+                <!-- MO's Algorithm -->
+                <div class="pipeline-step">
+                    <div class="step-number">5</div>
+                    <h3>MO's Algorithm</h3>
+                    <div class="mos-visualization">
+                        <div class="time-window">
+                            <div class="window-label">10-Minute Window</div>
+                            <div class="review-bursts">
+                                <div class="burst" style="height: 80%">5+ Reviews</div>
+                                <div class="burst" style="height: 30%">Normal</div>
+                            </div>
+                        </div>
+                        <div class="result-box">
+                            <p><strong>Detected:</strong> 5+ reviews in under 10 minutes</p>
+                            <p><strong>Pattern:</strong> Tight timing, same IP subnet</p>
+                            <p><strong>R104:</strong> Different app but same timing/IP</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="pipeline-arrow">↓</div>
+
+                <!-- Bipartite Graph -->
+                <div class="pipeline-step">
+                    <div class="step-number">6</div>
+                    <h3>Reviewer-App Bipartite Graph</h3>
+                    <div class="bipartite-graph">
+                        <div class="graph-nodes">
+                            <div class="node-group reviewers">
+                                <h4>Reviewers</h4>
+                                <div class="node">R101</div>
+                                <div class="node">R102</div>
+                                <div class="node">R103</div>
+                                <div class="node">R104</div>
+                                <div class="node">R105</div>
+                            </div>
+                            <div class="edges-container">
+                                <div class="edge" style="--weight: 0.9"></div>
+                                <div class="edge" style="--weight: 0.9"></div>
+                                <div class="edge" style="--weight: 0.9"></div>
+                                <div class="edge" style="--weight: 0.6"></div>
+                                <div class="edge" style="--weight: 0.9"></div>
+                            </div>
+                            <div class="node-group apps">
+                                <h4>Apps</h4>
+                                <div class="node">BoostFit Pro</div>
+                                <div class="node">GymGenius</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pipeline-arrow">↓</div>
+
+                <!-- Min-Cut Clustering -->
+                <div class="pipeline-step">
+                    <div class="step-number">7</div>
+                    <h3>Min-Cut Clustering</h3>
+                    <div class="mincut-visualization">
+                        <div class="graph-clusters">
+                            <div class="cluster">
+                                <div class="cluster-label">Suspicious Cluster</div>
+                                <div class="cluster-nodes">
+                                    <div class="node">R101</div>
+                                    <div class="node">R102</div>
+                                    <div class="node">R103</div>
+                                    <div class="node">R105</div>
+                                    <div class="node">BoostFit Pro</div>
+                                </div>
+                            </div>
+                            <div class="cluster">
+                                <div class="cluster-label">Edge Case</div>
+                                <div class="cluster-nodes">
+                                    <div class="node">R104</div>
+                                    <div class="node">GymGenius</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pipeline-arrow">↓</div>
+
+                <!-- Flag & Action -->
+                <div class="pipeline-step">
+                    <div class="step-number">8</div>
+                    <h3>Flag & Action</h3>
+                    <div class="action-cards">
+                        <div class="action-card">
+                            <div class="icon">🚩</div>
+                            <h4>App Flagged</h4>
+                            <p>BoostFit Pro flagged for manipulation</p>
+                        </div>
+                        <div class="action-card">
+                            <div class="icon">🚫</div>
+                            <h4>Accounts Banned</h4>
+                            <p>R101-R105 under investigation</p>
+                        </div>
+                        <div class="action-card">
+                            <div class="icon">📉</div>
+                            <h4>Ranking Impact</h4>
+                            <p>Excluded from "Top Rated" lists</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-section">
+                <h3>✅ Result</h3>
+                <ul>
+                    <li>The coordinated review campaign is detected within minutes</li>
+                    <li>No reputation boost is achieved</li>
+                    <li>The app store maintains ranking integrity</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2 class="section-title">
+                <span class="icon">🔍</span>
+                Key Insights & Inferences
+            </h2>
+            <div class="problem-grid">
+                <div class="solution-card">
+                    <div class="card-title">XOR Hashing Benefits</div>
+                    <p>Tracks reused bots even when behavior is varied, providing a compact and efficient fingerprinting mechanism.</p>
+                </div>
+                <div class="need-card">
+                    <div class="card-title">Temporal Pattern Detection</div>
+                    <p>MO's algorithm detects non-random patterns in review timing — a strong indicator of automated manipulation.</p>
+                </div>
+                <div class="problem-card">
+                    <div class="card-title">Collusion Network Exposure</div>
+                    <p>Min-Cut graph separation exposes clusters of cooperating malicious apps and reviewers effectively.</p>
+                </div>
+            </div>
+        </section>
+
+
+        <section class="summary-section">
+            <h2>🏁 Solution Summary</h2>
+            <p style="font-size: 1.2em; margin-bottom: 20px;">
+                This solution adds a <strong>scalable, algorithm-first layer</strong> to detect 
+                <strong>coordinated review manipulation</strong> in Google Play.
+            </p>
+            <p>
+                It complements existing ML tools and strengthens <strong>trust and ranking fairness</strong>, 
+                enabling early detection and reducing user harm and reputational risk.
+            </p>
+        </section>
+    </div>
+
+    <script>
+        // Add some interactive elements
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate pipeline steps on scroll
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.animationDelay = '0s';
+                        entry.target.classList.add('animate-in');
+                    }
+                });
+            });
+
+            document.querySelectorAll('.pipeline-step').forEach(step => {
+                observer.observe(step);
+            });
+
+            // Add floating animation to efficiency cards
+            document.querySelectorAll('.efficiency-card').forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.2}s`;
+                card.style.animation = 'pulse 3s infinite ease-in-out';
+            });
+
+            // Add classes to nodes
+            const nodes = document.querySelectorAll('.node');
+            nodes.forEach(node => {
+                if (node.textContent.includes('R101') || 
+                    node.textContent.includes('R102') || 
+                    node.textContent.includes('R103') || 
+                    node.textContent.includes('R105')) {
+                    node.classList.add('suspicious');
+                } else if (node.textContent.includes('R104')) {
+                    node.classList.add('normal');
+                } else if (node.textContent.includes('BoostFit') || 
+                         node.textContent.includes('GymGenius')) {
+                    node.classList.add('app');
+                }
+            });
+
+            // Create edges container
+            const graphNodes = document.querySelector('.graph-nodes');
+            const edgesContainer = document.createElement('div');
+            edgesContainer.className = 'edges-container';
+            graphNodes.appendChild(edgesContainer);
+
+            // Create edges
+            const reviewers = document.querySelectorAll('.node-group.reviewers .node');
+            const apps = document.querySelectorAll('.node-group.apps .node');
+
+            reviewers.forEach((reviewer, i) => {
+                apps.forEach((app, j) => {
+                    const edge = document.createElement('div');
+                    edge.className = 'edge';
+                    
+                    // Calculate edge position and angle
+                    const reviewerRect = reviewer.getBoundingClientRect();
+                    const appRect = app.getBoundingClientRect();
+                    const graphRect = graphNodes.getBoundingClientRect();
+                    
+                    const startX = reviewerRect.right - graphRect.left;
+                    const startY = reviewerRect.top + reviewerRect.height/2 - graphRect.top;
+                    const endX = appRect.left - graphRect.left;
+                    const endY = appRect.top + appRect.height/2 - graphRect.top;
+                    
+                    const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+                    const angle = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI;
+                    
+                    edge.style.width = `${length}px`;
+                    edge.style.left = `${startX}px`;
+                    edge.style.top = `${startY}px`;
+                    edge.style.transform = `rotate(${angle}deg)`;
+                    
+                    // Add appropriate class based on nodes
+                    if (reviewer.classList.contains('suspicious')) {
+                        edge.classList.add('suspicious');
+                    } else if (reviewer.classList.contains('normal')) {
+                        edge.classList.add('normal');
+                    }
+                    
+                    edgesContainer.appendChild(edge);
+                });
+            });
+
+            // Add hover effects
+            const edges = document.querySelectorAll('.edge');
+            edges.forEach(edge => {
+                edge.addEventListener('mouseover', function() {
+                    this.style.opacity = '1';
+                });
+                edge.addEventListener('mouseout', function() {
+                    this.style.opacity = this.style.getPropertyValue('--weight');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
