@@ -3,363 +3,374 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MEC with Private 5G | DDoS Detection</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            line-height: 1.6;
-            background: #0a192f;
-            min-height: 100vh;
-            color: #e6e6e6;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 3rem;
-            background: rgba(16, 42, 66, 0.5);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 3rem;
-            border: 1px solid rgba(100, 255, 218, 0.2);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            background: linear-gradient(45deg, #64ffda, #00bfa5);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-weight: 700;
-        }
-
-        .header .subtitle {
-            font-size: 1.2rem;
-            color: #64ffda;
-            margin-bottom: 1.5rem;
-            font-weight: 300;
-        }
-
-        .badge {
-            display: inline-block;
-            background: rgba(100, 255, 218, 0.1);
-            color: #64ffda;
-            padding: 0.5rem 1.5rem;
-            border-radius: 25px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            border: 1px solid rgba(100, 255, 218, 0.3);
-        }
-
-        .content-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .card {
-            background: rgba(16, 42, 66, 0.5);
-            border-radius: 20px;
-            padding: 2.5rem;
-            border: 1px solid rgba(100, 255, 218, 0.2);
-            transition: all 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(100, 255, 218, 0.4);
-            box-shadow: 0 10px 30px rgba(100, 255, 218, 0.1);
-        }
-
-        .card h2 {
-            color: #64ffda;
-            margin-bottom: 1.5rem;
-            font-size: 1.8rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .icon {
-            font-size: 1.5rem;
-        }
-
-        .card p, .card li {
-            margin-bottom: 1rem;
-            color: #e6e6e6;
-            line-height: 1.7;
-        }
-
-        .card ul {
-            list-style: none;
-            padding-left: 0;
-        }
-
-        .card li::before {
-            content: "→";
-            margin-right: 0.5rem;
-            color: #64ffda;
-        }
-
-        .highlight {
-            background: rgba(100, 255, 218, 0.1);
-            padding: 0.2rem 0.5rem;
-            border-radius: 5px;
-            font-weight: 600;
-            color: #64ffda;
-        }
-
-        .full-width-card {
-            grid-column: 1 / -1;
-        }
-
-        .stack-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin: 2rem 0;
-        }
-
-        .stack-item {
-            background: rgba(16, 42, 66, 0.5);
-            border-radius: 15px;
-            padding: 1.5rem;
-            border: 1px solid rgba(100, 255, 218, 0.2);
-        }
-
-        .stack-item h3 {
-            color: #64ffda;
-            margin-bottom: 1rem;
-            font-size: 1.2rem;
-            font-weight: 600;
-        }
-
-        .stack-item p {
-            color: #e6e6e6;
-            font-size: 0.9rem;
-            line-height: 1.6;
-        }
-
-        .metrics-section {
-            background: linear-gradient(135deg, #00bfa5, #64ffda);
-            border-radius: 20px;
-            padding: 3rem;
-            margin: 2rem 0;
-            text-align: center;
-            box-shadow: 0 10px 40px rgba(100, 255, 218, 0.3);
-        }
-
-        .metrics-section h2 {
-            font-size: 2rem;
-            margin-bottom: 1.5rem;
-            color: #0a192f;
-        }
-
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-
-        .metric-item {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 1.5rem;
-            border-radius: 15px;
-            backdrop-filter: blur(5px);
-        }
-
-        .metric-item h3 {
-            margin-bottom: 1rem;
-            font-size: 1.2rem;
-            color: #0a192f;
-        }
-
-        .tech-stack {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .tech-badge {
-            background: rgba(100, 255, 218, 0.1);
-            color: #64ffda;
-            padding: 0.5rem 1rem;
-            border-radius: 25px;
-            font-size: 0.9rem;
-            border: 1px solid rgba(100, 255, 218, 0.3);
-        }
-
-        .footer {
-            text-align: center;
-            margin-top: 3rem;
-            padding: 2rem;
-            background: rgba(16, 42, 66, 0.5);
-            border-radius: 15px;
-            border: 1px solid rgba(100, 255, 218, 0.2);
-        }
-
-        .footer p {
-            color: #e6e6e6;
-            font-size: 1.1rem;
-            margin-bottom: 1rem;
-        }
-
-        .project-logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            background: linear-gradient(45deg, #64ffda, #00bfa5);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .code-block {
-            background: rgba(10, 25, 47, 0.8);
-            padding: 1.5rem;
-            border-radius: 10px;
-            border: 1px solid rgba(100, 255, 218, 0.2);
-            margin: 1rem 0;
-            font-family: 'Fira Code', monospace;
-            color: #e6e6e6;
-        }
-
-        .code-block .comment {
-            color: #00bfa5;
-        }
-
-        .code-block .keyword {
-            color: #64ffda;
-        }
-
-        .code-block .string {
-            color: #ffd700;
-        }
-
-        @media (max-width: 768px) {
-            .content-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .header h1 {
-                font-size: 2rem;
-            }
-        }
-    </style>
+    <title>Professional Portfolio</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <header class="header">
-            <h1>MEC with Private 5G for DDoS Detection</h1>
-            <p class="subtitle">Edge Computing Security in Next-Generation Networks</p>
-            <div class="badge">Real-time Threat Detection • 150ms Latency</div>
-        </header>
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="logo">Your Name</div>
+            <ul class="nav-links">
+                <li><a href="#about">About</a></li>
+                <li><a href="#skills">Skills</a></li>
+                <li><a href="#projects">Projects</a></li>
+                <li><a href="#business-cases">Business Cases</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
 
-        <div class="content-grid">
-            <div class="card">
-                <h2><span class="icon">🧩</span> Overview</h2>
-                <p>This project implements a private 5G testbed using Open5GS and srsRAN, and integrates a Multi-access Edge Computing (MEC) layer to detect and respond to DDoS attacks in real time.</p>
-                <p>The goal was to simulate realistic 5G network traffic and deploy deep learning models close to the data source for low-latency security analysis.</p>
-            </div>
-
-            <div class="card">
-                <h2><span class="icon">🔧</span> Testbed Setup</h2>
-                <div class="code-block">
-                    <span class="comment"># Component Stack</span><br>
-                    <span class="keyword">5G Core:</span> <span class="string">Open5GS</span><br>
-                    <span class="keyword">5G RAN:</span> <span class="string">srsRAN</span><br>
-                    <span class="keyword">UE Emulation:</span> <span class="string">srsUE, SDR</span><br>
-                    <span class="keyword">MEC Platform:</span> <span class="string">Docker, Flask, Kafka</span>
-                </div>
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Namita Bhat</h1>
+            <h2>Computer Science Engineer</h2>
+            <p class="hero-description">A passionate and dedicated graduate ready to make an impact in the industry</p>
+            <div class="cta-buttons">
+                <a href="#contact" class="btn primary">Get in Touch</a>
+                <a href="#projects" class="btn secondary">View My Work</a>
             </div>
         </div>
+    </section>
 
-        <div class="card full-width-card">
-            <h2><span class="icon">🧠</span> Model Pipeline</h2>
-            <div class="stack-grid">
-                <div class="stack-item">
-                    <h3>1. BiLSTM Model</h3>
-                    <p>Input: Sequence of network activity logs<br>
-                    Accuracy: ~93%<br>
-                    F1-score: 90%</p>
-                </div>
-                <div class="stack-item">
-                    <h3>2. XGBoost Model</h3>
-                    <p>Faster, interpretable classification<br>
-                    Accuracy: ~91%<br>
-                    Real-time inference</p>
-                </div>
-                <div class="stack-item">
-                    <h3>3. Deployment</h3>
-                    <p>Docker containers<br>
-                    REST APIs on MEC layer<br>
-                    Real-time querying</p>
+    <main class="container">
+        <section id="about" class="about">
+            <h2 class="section-title">About Me</h2>
+            <div class="about-content">
+                <div class="about-text">
+                    <p>As a recent Computer Science graduate with a strong academic foundation and hands-on experience across cloud-native systems, machine learning, and real-world application development, I am eager to contribute to Google's mission of solving complex global challenges through technology.</p>
+                    <p>My education and projects—including deploying a containerized 5G core with ML-based DDoS detection, scaling a ride-sharing platform for urban mobility, and presenting research at national conferences—have sharpened my skills in distributed systems, DevOps, and AI.</p>
+                    <p>I'm particularly passionate about building scalable, intelligent systems at the intersection of cloud infrastructure and machine learning. Google's culture of innovation, engineering excellence, and impact-driven work deeply resonates with my aspirations, and I am excited by the opportunity to grow and contribute as part of your team.</p>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <div class="metrics-section">
-            <h2>📊 Performance Metrics</h2>
-            <div class="metrics-grid">
-                <div class="metric-item">
-                    <h3>Detection Time</h3>
-                    <p>Under 150ms</p>
-                </div>
-                <div class="metric-item">
-                    <h3>BiLSTM Accuracy</h3>
-                    <p>93%</p>
-                </div>
-                <div class="metric-item">
-                    <h3>XGBoost Accuracy</h3>
-                    <p>91%</p>
+        <section id="education" class="education">
+            <h2 class="section-title">Education</h2>
+            <div class="education-content">
+                <div class="education-card">
+                    <div class="education-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div class="education-details">
+                        <h3>Bachelor of Engineering in Computer Science</h3>
+                        <p class="institution">KLE Technological University, Hubli, Karnataka, India</p>
+                        <p class="duration">2026</p>
+                        <p class="cgpa">CGPA: 9.46</p>
+                    </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <div class="content-grid">
-            <div class="card">
-                <h2><span class="icon">💡</span> Key Features</h2>
-                <ul>
-                    <li>Full emulation of private 5G environment</li>
-                    <li>Live data-driven anomaly detection</li>
-                    <li>Containerized setup for portability</li>
-                    <li>Streaming log processing with Kafka</li>
-                    <li>Real-time threat response</li>
-                </ul>
+        <section id="skills" class="skills">
+            <h2 class="section-title">Skills</h2>
+            <div class="skills-grid">
+                <div class="skill-category">
+                    <h3>Technical Skills</h3>
+                    <ul class="skill-list">
+                        <li>Python</li>
+                        <li>C/C++</li>
+                        <li>HTML/CSS</li>
+                        <li>SQL</li>
+                        <li>Machine Learning</li>
+                        <li>Cloud Computing</li>
+                    </ul>
+                </div>
+                <div class="skill-category">
+                    <h3>Soft Skills</h3>
+                    <ul class="skill-list">
+                        <li>Communication</li>
+                        <li>Teamwork</li>
+                        <li>Problem Solving</li>
+                        <li>Time Management</li>
+                        <li>Adaptability</li>
+                        <li>Critical Thinking</li>
+                        <li>Leadership</li>
+                        <li>Project Management</li>
+                    </ul>
+                </div>
             </div>
+        </section>
 
-            <div class="card">
-                <h2><span class="icon">🔮</span> Future Scope</h2>
-                <ul>
-                    <li>Multi-class attack detection</li>
-                    <li>SDN controller integration</li>
-                    <li>Hardware UE devices support</li>
-                    <li>Federated learning across MEC nodes</li>
-                </ul>
+        <section id="projects" class="projects">
+            <h2 class="section-title">Academic Projects</h2>
+            <div class="project-grid">
+                <div class="project-card">
+                    <div class="project-image">
+                        <img src="https://via.placeholder.com/400x300" alt="Project 1">
+                    </div>
+                    <div class="project-content">
+                        <h3>Predicting Metastasis Period in TNBC </h3>
+                        <p>A predictive model after performing exploratory data analysis to forecast the metastasis period in Triple-Negative Breast Cancer (TNBC).</p>
+                        <div class="project-tags">
+                            <span>Exploratory Data Analysis</span>
+                            <span>Data Visulization</span>
+                            <span>Machine Learning</span>
+                        </div>
+                        <a href="projects/TNBC.html" class="case-link">
+                        View Project Details <i class="fas fa-arrow-right"></i>
+                    </a>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-image">
+                        <img src="https://via.placeholder.com/400x300" alt="Project 2">
+                    </div>
+                    <div class="project-content">
+                        <h3>NVIDIA Project Intern</h3>
+                        <p>•	Developed a VS Code extension for the novel Hardware Sequence Language (HSL) as an NVIDIA project intern, enabling modern code editor features like syntax highlighting, autocompletion, and debugging..</p>
+                        <div class="project-tags">
+                            <span>VS Code Extension</span>
+                            <span>JavaScript</span>
+                            <span>TypeScript</span>
+                        </div>
+                         <a href="projects/HSL.html" class="case-link">
+                        View Project Details <i class="fas fa-arrow-right"></i>
+                    </a>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-image">
+                        <img src="https://via.placeholder.com/400x300" alt="Project 3">
+                    </div>
+                    <div class="project-content">
+                        <h3>Transformer-Based NL-to-SQL Generation </h3>
+                        <p>Developed a Transformer-based model to convert natural language queries into SQL, enabling seamless interaction with relational databases. Leveraged deep learning to understand user intent and generate accurate, executable SQL, enhancing accessibility for non-technical users.</p>
+                        <div class="project-tags">
+                            <span>Seq2Seq Model</span>
+                            <span>Transformers</span>
+                            <span>Machine Learning</span>
+                        </div>
+                        <a href="projects/ML.html" class="case-link">
+                        View Project Details <i class="fas fa-arrow-right"></i>
+                    </a>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-image">
+                        <img src="https://via.placeholder.com/400x300" alt="Project 4">
+                    </div>
+                    <div class="project-content">
+                        <h3>MEC with Private 5G for DDoS Detection </h3>
+                        <p>A 5G testbed using Open5GS and srsRAN to establish a private 5G network environment. Investigating DDoS attack detection on the testbed through a Deep Learning model</p>
+                        <div class="project-tags">
+                            <span>Open5gs</span>
+                            <span>srsRAN</span>
+                            <span>Mobile Edge Computing</span>
+                        </div>
+                        <a href="projects/cloud.html" class="case-link">
+                        View Project Details <i class="fas fa-arrow-right"></i>
+                    </a>
+                    </div>
+                </div>
             </div>
-        </div>
+        </section>
 
-        <footer class="footer">
-            <p><strong>5G Security Research</strong></p>
-            <p>Advancing edge computing security in next-generation networks</p>
-            <div class="project-logo">MEC • Private 5G • DDoS Detection</div>
-        </footer>
+        <section id="domain" class="domain">
+            <h2 class="section-title">Chosen Domain</h2>
+            <div class="domain-content">
+                <div class="domain-card">
+                    <div class="domain-icon">
+                        <i class="fab fa-google"></i>
+                    </div>
+                    <div class="domain-details">
+                        <h3>Google</h3>
+                        <p class="domain-description">Google is a global leader in internet-related products and services, including search, cloud computing, advertising, software, and hardware. Renowned for its innovation in AI, cloud infrastructure, and user-centric design, Google builds scalable, intelligent technologies that power billions of users and businesses worldwide. From foundational tools like Search and Gmail to advanced platforms like Google Cloud, Android, and Waymo, Google continues to shape the future of digital experiences through cutting-edge research, open-source contributions, and ethical AI development.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="business-cases" class="business-cases">
+            <h2 class="section-title">Innovative Business Cases</h2>
+            <div class="business-cases-grid">
+                <div class="business-case-card">
+                    <div class="case-icon">
+                        <i class="fa-brands fa-youtube"></i>
+                    </div>
+                    <h3>Early Viral Content Detection in YouTube Shorts</h3>
+                    <p class="case-description">
+                        A real-time analytics system using streaming algorithms and graph-based analysis to identify genuinely viral content early and mitigate manipulation on platforms like YouTube Shorts.
+                    </p>
+                    <div class="case-details">
+                        <div class="case-metric">
+                            <span class="metric-value">$3.5B</span>
+                            <span class="metric-label">Market Potential</span>
+                        </div>
+                        <div class="case-metric">
+                            <span class="metric-value">12–24 Months</span>
+                            <span class="metric-label">ROI Timeline</span>
+                        </div>
+                    </div>
+                    <a href="business-cases/early-viral-detection.html" class="case-link">
+                        View Detailed Analysis <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                
+
+                <div class="business-case-card">
+                    <div class="case-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>IndexWise – Multi-Intent Search Ranking</h3>
+                    <p class="case-description">An intelligent search ranking system that diversifies top results using submodular optimization. Designed to identify and balance user sub-intents, it improves relevance, engagement, and fairness in ambiguous queries across Search, Ads, and Cloud platforms.</p>
+                    <div class="case-details">
+                        <div class="case-metric">
+                            <span class="metric-value">$2.8B</span>
+                            <span class="metric-label">Market Potential</span>
+                        </div>
+                        <div class="case-metric">
+                            <span class="metric-value">2-3 Years</span>
+                            <span class="metric-label">ROI Timeline</span>
+                        </div>
+                    </div>
+                    <a href="business-cases/index_search.html" class="case-link">
+                        View Detailed Analysis <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                
+                <div class="business-case-card">
+                    <div class="case-icon">
+                        <i class="fas fa-network-wired"></i>
+                    </div>
+                    <h3>Multi-Path SDN Load Balancing with Yen & Ford-Fulkerson</h3>
+<p class="case-description">
+A traffic-optimized SDN routing system that combines Yen's K-Shortest Paths for route diversity and Ford-Fulkerson's Max-Flow for bandwidth-aware distribution—delivering high-throughput, low-congestion networking ideal for large-scale datacenters, IoT backbones, and next-gen telecom infrastructure.
+</p>
+<div class="case-details">
+    <div class="case-metric">
+        <span class="metric-value">$2.7B</span>
+        <span class="metric-label">Market Potential</span>
     </div>
+    <div class="case-metric">
+        <span class="metric-value">1-2 Years</span>
+        <span class="metric-label">ROI Timeline</span>
+    </div>
+</div>
+
+                    
+                    <a href="business-cases/load_balance.html" class="case-link">
+                        View Detailed Analysis <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                
+                <div class="business-case-card">
+                    <div class="case-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Review Manipulation Detection System</h3>
+                    <p class="case-description">A robust system to detect and prevent fake or coordinated reviews using advanced fingerprinting, graph clustering, and behavioral analysis techniques.</p>
+                    <div class="case-details">
+                        <div class="case-metric">
+                            <span class="metric-value">$1.5B</span>
+                            <span class="metric-label">Market Potential</span>
+                        </div>
+                        <div class="case-metric">
+                            <span class="metric-value">1-2 Years</span>
+                            <span class="metric-label">ROI Timeline</span>
+                        </div>
+                    </div>
+                    
+                    <a href="business-cases/review_manipulation.html" class="case-link">
+                        View Detailed Analysis <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                
+                <div class="business-case-card">
+                    <div class="case-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>AI Fake Data Prevention System</h3>
+                    <p class="case-description">A real-time verification platform that ensures AI agents learn only from accurate and trustworthy data by filtering out fake, misleading, and adversarial information.</p>
+                    <div class="case-details">
+                        <div class="case-metric">
+                            <span class="metric-value">$2.3B</span>
+                            <span class="metric-label">Market Potential</span>
+                        </div>
+                        <div class="case-metric">
+                            <span class="metric-value">2-3 Years</span>
+                            <span class="metric-label">ROI Timeline</span>
+                        </div>
+                    </div>
+                  
+                    
+                    <a href="business-cases/fake_data.html" class="case-link">
+                        View Detailed Analysis <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                
+                
+
+                <div class="business-case-card">
+                    <div class="case-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Financial Technology Solutions</h3>
+                    <p class="case-description">A comprehensive fintech platform offering AI-driven financial services, automated trading, and personalized wealth management solutions.</p>
+                    <div class="case-details">
+                        <div class="case-metric">
+                            <span class="metric-value">$2.5B</span>
+                            <span class="metric-label">Market Potential</span>
+                        </div>
+                        <div class="case-metric">
+                            <span class="metric-value">2-3 Years</span>
+                            <span class="metric-label">ROI Timeline</span>
+                        </div>
+                    </div>
+                    <ul class="case-features">
+                        <li>Automated trading algorithms</li>
+                        <li>Risk assessment tools</li>
+                        <li>Personalized investment advice</li>
+                        <li>Blockchain integration</li>
+                    </ul>
+                    <a href="#" class="case-link">View Detailed Analysis <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="contact">
+            <h2 class="section-title">Get in Touch</h2>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <span>namibhatgkn04@gmail.com</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <span>+91 7483439866</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Gokarna, Karnataka, India</span>
+                    </div>
+                </div>
+                <form class="contact-form">
+                    <div class="form-group">
+                        <input type="text" placeholder="Your Name" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" placeholder="Your Email" required>
+                    </div>
+                    <div class="form-group">
+                        <textarea placeholder="Your Message" required></textarea>
+                    </div>
+                    <button type="submit" class="btn primary">Send Message</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 Your Name. All rights reserved.</p>
+            <div class="social-links">
+                <a href="#"><i class="fab fa-linkedin"></i></a>
+                <a href="#"><i class="fab fa-github"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+            </div>
+        </div>
+    </footer>
 </body>
-</html>
+</html> 
