@@ -85,11 +85,9 @@
 
         .problem-grid {
             display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 25px 0;
         }
 
         .problem-card {
@@ -811,28 +809,101 @@
                 </tbody>
             </table>
 
-            <div class="data-structures-section" style="margin-top: 40px;">
-                <h3 class="section-title" style="font-size: 1.5em; margin-bottom: 20px;">
+            <section class="content-section">
+                <h2 class="section-title">
                     <span class="icon">🧱</span>
                     Data Structures Used
-                </h3>
+                </h2>
                 <div class="problem-grid">
                     <div class="solution-card">
                         <div class="card-title">Hash Tables</div>
                         <p>Used to map each user ID to its XOR-generated fingerprint. Allows O(1) time checks for whether a new reviewer's behavior matches previously known bots.</p>
+                        <ul>
+                            <li>Key: User ID</li>
+                            <li>Value: XOR fingerprint</li>
+                            <li>Time Complexity: O(1) for lookups</li>
+                            <li>Space Complexity: O(n) where n is number of users</li>
+                        </ul>
                     </div>
                     <div class="need-card">
                         <div class="card-title">Adjacency Lists</div>
-                        <p>Stores the bipartite graph between reviewers and apps. Adjacency list is space-efficient for sparse graphs (most users review only a few apps) and supports quick traversal for the max-flow algorithm.</p>
+                        <p>Stores the bipartite graph between reviewers and apps. Space-efficient for sparse graphs and supports quick traversal for the max-flow algorithm.</p>
+                        <ul>
+                            <li>Node Structure: Reviewer/App ID</li>
+                            <li>Edge List: Connected nodes</li>
+                            <li>Time Complexity: O(V + E) for traversal</li>
+                            <li>Space Complexity: O(V + E)</li>
+                        </ul>
                     </div>
                     <div class="problem-card">
                         <div class="card-title">Arrays + Query Blocks</div>
-                        <p>MO's algorithm divides the timeline into blocks (√N size) and stores the count of unique reviewers per block. Arrays track review frequency over time; helps process multiple burst-detection queries efficiently.</p>
+                        <p>MO's algorithm divides the timeline into blocks (√N size) and stores the count of unique reviewers per block.</p>
+                        <ul>
+                            <li>Block Size: √N</li>
+                            <li>Array Structure: Review counts per block</li>
+                            <li>Time Complexity: O(√N) per query</li>
+                            <li>Space Complexity: O(N)</li>
+                        </ul>
                     </div>
                     <div class="solution-card">
                         <div class="card-title">Flow Network</div>
-                        <p>Built with a source, sink, reviewer nodes, and app nodes. Capacities are defined (e.g., how many apps a bot typically reviews). Max-flow helps separate well-connected suspicious subgraphs from the rest of the network.</p>
+                        <p>Built with source, sink, reviewer nodes, and app nodes. Capacities are defined for max-flow calculations.</p>
+                        <ul>
+                            <li>Node Types: Source, Sink, Reviewers, Apps</li>
+                            <li>Edge Properties: Capacity, Flow</li>
+                            <li>Time Complexity: O(VE²) for max-flow</li>
+                            <li>Space Complexity: O(V + E)</li>
+                        </ul>
                     </div>
+                </div>
+            </section>
+        </section>
+
+        <section class="content-section">
+            <h2 class="section-title">
+                <span class="icon">⚡</span>
+                Algorithms Used
+            </h2>
+            <div class="problem-grid">
+                <div class="solution-card">
+                    <div class="card-title">XOR Fingerprinting</div>
+                    <p>Generates compact binary signatures for user behavior patterns.</p>
+                    <ul>
+                        <li>Input: App IDs and timestamps</li>
+                        <li>Operation: Bitwise XOR</li>
+                        <li>Time Complexity: O(1) per operation</li>
+                        <li>Space Complexity: O(1) per signature</li>
+                    </ul>
+                </div>
+                <div class="need-card">
+                    <div class="card-title">MO's Algorithm</div>
+                    <p>Processes batch queries for temporal pattern detection.</p>
+                    <ul>
+                        <li>Input: Chronological review data</li>
+                        <li>Operation: Block-based processing</li>
+                        <li>Time Complexity: O((N + Q)√N)</li>
+                        <li>Space Complexity: O(N)</li>
+                    </ul>
+                </div>
+                <div class="problem-card">
+                    <div class="card-title">Min-Cut / Max-Flow</div>
+                    <p>Separates suspicious dense clusters in the bipartite graph.</p>
+                    <ul>
+                        <li>Input: Reviewer-App graph</li>
+                        <li>Operation: Flow maximization</li>
+                        <li>Time Complexity: O(VE²)</li>
+                        <li>Space Complexity: O(V + E)</li>
+                    </ul>
+                </div>
+                <div class="solution-card">
+                    <div class="card-title">Burst Detection</div>
+                    <p>Identifies abnormal temporal patterns in review submissions.</p>
+                    <ul>
+                        <li>Input: Time series data</li>
+                        <li>Operation: Window-based analysis</li>
+                        <li>Time Complexity: O(N)</li>
+                        <li>Space Complexity: O(W) where W is window size</li>
+                    </ul>
                 </div>
             </div>
         </section>
