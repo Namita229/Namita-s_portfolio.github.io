@@ -753,76 +753,122 @@
             </div>
           </div>
 
-        <!-- Algorithms Section -->
+        <!-- Data Structures Section -->
         <div class="section fade-in">
-            <h2><span class="emoji">🧠</span>What Algorithms & Data Structures Are We Using?</h2>
-            <p style="margin-bottom: 25px;">This system relies on <strong>streaming algorithms</strong>, <strong>burst detection</strong>, and <strong>graph-based manipulation analysis</strong>.</p>
+            <h2><span class="emoji">📚</span>Data Structures Used</h2>
             
             <div class="algorithm-grid">
                 <div class="algo-card">
-                    <h4><span class="algo-icon">1</span>Count-Min Sketch / Stream Bloom Filter</h4>
-                    <p><strong>Bloom Filter Purpose:</strong> Quickly filter out videos that have never been seen before (or definitely not in your tracked set).</p>
-                    <p><strong>Bloom Filter Need:</strong></p>
+                    <h4><span class="algo-icon">1</span>Bloom Filter</h4>
+                    <p><strong>Purpose:</strong> Space-efficient probabilistic data structure for membership testing</p>
+                    <p><strong>Implementation Details:</strong></p>
                     <ul>
-                        <li>Helps avoid unnecessary processing for videos that have no prior views or data.</li>
-                        <li>Bloom filter's fast "definitely not present" check saves computation and memory by ignoring completely new content until it appears enough times.</li>
-                        <li>It's a space-efficient membership filter for millions of video IDs.</li>
-                    </ul>
-                    <p><strong>Count-min Sketch (CMS) Purpose:</strong> Maintain approximate view counts for each video in real time using small memory.</p>
-                    <p><strong>Count-min Sketch (CMS) Need:</strong></p>
-                    <ul>
-                        <li>You have massive streaming data (view events per video) that's impossible to store exactly due to scale.</li>
-                        <li>CMS gives a fast, memory-efficient frequency estimate of views per video ID.</li>
-                        <li>It provides the counts needed to identify which videos are gaining attention.</li>
-                    </ul>
-          </div>
-
-                <div class="algo-card">
-                    <h4><span class="algo-icon">2</span>Burst Detection (Sliding Window + Threshold)</h4>
-                    <p><strong>Burst Detection Purpose:</strong> Detect sudden spikes in view counts over short periods that suggest viral potential.</p>
-                    <p><strong>Burst Detection Need:</strong></p>
-                    <ul>
-                      <li>Not all high-view videos are viral — virality is about the *rate of change*, not just the count.</li>
-                      <li>A sliding time window helps track the *velocity* of views, highlighting rapid rise in popularity.</li>
-                      <li>Thresholding mechanisms help classify "bursts" — e.g., a view count doubling in 5 minutes vs. 5 days.</li>
-                      <li>Videos crossing burst thresholds are flagged as potential early-stage viral content.</li>
+                        <li>Bit array of size m with k hash functions</li>
+                        <li>O(1) time complexity for insertions and lookups</li>
+                        <li>False positives possible, but no false negatives</li>
+                        <li>Memory efficient: ~10 bits per element</li>
                     </ul>
                 </div>
-                
-                
-                  <div class="algo-card">
-                    <h4><span class="algo-icon">3</span>Graph-based Manipulation Detection</h4>
-                    <p><strong>Purpose:</strong> Identify suspicious activity patterns like bot-driven or artificially boosted views.</p>
-                    <p><strong>Need:</strong></p>
-                    <ul>
-                      <li>Not all spikes are organic. Some are caused by coordinated bot behavior or fake engagement.</li>
-                      <li>Models a graph with nodes (user/device/IP) and edges (interactions with videos) to detect anomalies.</li>
-                      <li>High edge overlap across multiple videos or sudden high-degree centrality can signal manipulation.</li>
-                      <li>This protects the system from falsely promoting artificially inflated content.</li>
-                </ul>
-              </div>
 
-                
-                  <div class="algo-card">
-                    <h4><span class="algo-icon">4</span>Time-decayed Priority Queue</h4>
-                    <p><strong>Purpose:</strong> Maintain a live ranking of potentially viral videos, giving more weight to recent activity.</p>
-                    <p><strong>Need:</strong></p>
+                <div class="algo-card">
+                    <h4><span class="algo-icon">2</span>Count-Min Sketch</h4>
+                    <p><strong>Purpose:</strong> Probabilistic data structure for frequency estimation</p>
+                    <p><strong>Implementation Details:</strong></p>
                     <ul>
-                      <li>We want a queue of candidates that is always up-to-date with the most *recently trending* videos.</li>
-                      <li>Older bursts should decay in importance — yesterday's viral video is no longer today's headline.</li>
-                      <li>Time decay ensures new but relevant content surfaces above stale content.</li>
-                      <li>This helps decision-makers (or automated systems) act on fresh trends fast — for promotion, alerts, or caching.</li>
+                        <li>2D array of counters with d rows and w columns</li>
+                        <li>d independent hash functions</li>
+                        <li>O(1) time complexity for updates and queries</li>
+                        <li>Memory efficient: ~0.1% of exact counting</li>
                     </ul>
-                  </div>
-                     
-                    </div>
+                </div>
 
-            <div class="viral-formula">
-                <div class="formula-text">
-                    <strong>Virality Score = α×(Frequency + Burst) - β×(Manipulation Risk)</strong>
-                      </div>
+                <div class="algo-card">
+                    <h4><span class="algo-icon">3</span>Graph Structure</h4>
+                    <p><strong>Purpose:</strong> Represent user-video interaction network</p>
+                    <p><strong>Implementation Details:</strong></p>
+                    <ul>
+                        <li>Adjacency list representation</li>
+                        <li>Nodes: users, videos, devices</li>
+                        <li>Edges: interactions, views, shares</li>
+                        <li>Weighted edges for interaction strength</li>
+                    </ul>
+                </div>
+
+                <div class="algo-card">
+                    <h4><span class="algo-icon">4</span>Time-Decayed Priority Queue</h4>
+                    <p><strong>Purpose:</strong> Maintain ranked list of trending videos</p>
+                    <p><strong>Implementation Details:</strong></p>
+                    <ul>
+                        <li>Binary heap with time-based decay</li>
+                        <li>O(log n) for insertions and updates</li>
+                        <li>Automatic score decay over time</li>
+                        <li>Thread-safe for concurrent updates</li>
+                    </ul>
+                </div>
             </div>
-                    </div>
+        </div>
+
+        <!-- Algorithms Section -->
+        <div class="section fade-in">
+            <h2><span class="emoji">⚡</span>Algorithms Used</h2>
+            
+            <div class="algorithm-grid">
+                <div class="algo-card">
+                    <h4><span class="algo-icon">1</span>Streaming Algorithm</h4>
+                    <p><strong>Purpose:</strong> Process data streams in real-time</p>
+                    <p><strong>Key Features:</strong></p>
+                    <ul>
+                        <li>Single-pass processing</li>
+                        <li>Constant memory usage</li>
+                        <li>Approximate results</li>
+                        <li>O(1) per-element processing time</li>
+                    </ul>
+                </div>
+
+                <div class="algo-card">
+                    <h4><span class="algo-icon">2</span>Burst Detection Algorithm</h4>
+                    <p><strong>Purpose:</strong> Identify sudden spikes in activity</p>
+                    <p><strong>Key Features:</strong></p>
+                    <ul>
+                        <li>Sliding window technique</li>
+                        <li>Adaptive thresholding</li>
+                        <li>Multi-scale analysis</li>
+                        <li>O(w) time complexity per window</li>
+                    </ul>
+                </div>
+
+                <div class="algo-card">
+                    <h4><span class="algo-icon">3</span>Graph Analysis Algorithms</h4>
+                    <p><strong>Purpose:</strong> Detect manipulation patterns</p>
+                    <p><strong>Key Features:</strong></p>
+                    <ul>
+                        <li>Community detection</li>
+                        <li>Centrality analysis</li>
+                        <li>Anomaly detection</li>
+                        <li>O(V + E) time complexity</li>
+                    </ul>
+                </div>
+
+                <div class="algo-card">
+                    <h4><span class="algo-icon">4</span>Time Series Analysis</h4>
+                    <p><strong>Purpose:</strong> Track and predict trends</p>
+                    <p><strong>Key Features:</strong></p>
+                    <ul>
+                        <li>Exponential smoothing</li>
+                        <li>Trend decomposition</li>
+                        <li>Seasonality detection</li>
+                        <li>O(n) time complexity</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="viral-formula" style="margin-top: 30px;">
+                <div class="formula-text">
+                    <strong>Time Complexity: O(1) per event</strong><br>
+                    <strong>Space Complexity: O(k) where k is number of active videos</strong>
+                </div>
+            </div>
+        </div>
 
         <!-- Working Example Section -->
         <div class="section fade-in">
