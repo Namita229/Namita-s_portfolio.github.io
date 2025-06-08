@@ -1069,6 +1069,294 @@
                 margin-bottom: 3rem;
             }
         }
+
+        /* Data Structures Section */
+        .algorithms-section {
+            margin-top: 4rem;
+            padding-top: 3rem;
+            border-top: 2px solid var(--border-color);
+        }
+
+        .algorithms-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .algorithms-header h3 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+
+        .algorithms-header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .algorithms-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .algorithm-card {
+            background: linear-gradient(145deg, var(--card-bg), #f8fafc);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 15px 35px var(--shadow-md);
+            border: 1px solid var(--border-color);
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .algorithm-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient-accent);
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+
+        .algorithm-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px var(--shadow-lg);
+        }
+
+        .algorithm-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .algorithm-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-accent);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: white;
+            transition: all 0.4s ease;
+        }
+
+        .algorithm-card:hover .algorithm-icon {
+            transform: rotate(15deg) scale(1.1);
+        }
+
+        .algorithm-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .algorithm-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .algorithm-details {
+            background: rgba(0, 212, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-top: 1rem;
+        }
+
+        .algorithm-details h4 {
+            color: var(--accent-blue);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .algorithm-details ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .algorithm-details li {
+            margin: 0.8rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: var(--text-secondary);
+        }
+
+        .algorithm-details li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--accent-blue);
+        }
+
+        @media (max-width: 1024px) {
+            .algorithms-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+
+        /* Algorithms Section */
+        .algorithms-section {
+            margin-top: 4rem;
+            padding-top: 3rem;
+            border-top: 2px solid var(--border-color);
+        }
+
+        .algorithms-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .algorithms-header h3 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+
+        .algorithms-header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .algorithms-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .algorithm-card {
+            background: linear-gradient(145deg, var(--card-bg), #f8fafc);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 15px 35px var(--shadow-md);
+            border: 1px solid var(--border-color);
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .algorithm-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient-accent);
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+
+        .algorithm-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px var(--shadow-lg);
+        }
+
+        .algorithm-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .algorithm-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-accent);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: white;
+            transition: all 0.4s ease;
+        }
+
+        .algorithm-card:hover .algorithm-icon {
+            transform: rotate(15deg) scale(1.1);
+        }
+
+        .algorithm-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .algorithm-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .algorithm-details {
+            background: rgba(0, 212, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-top: 1rem;
+        }
+
+        .algorithm-details h4 {
+            color: var(--accent-blue);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .algorithm-details ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .algorithm-details li {
+            margin: 0.8rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: var(--text-secondary);
+        }
+
+        .algorithm-details li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--accent-blue);
+        }
+
+        @media (max-width: 1024px) {
+            .algorithms-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1134,64 +1422,153 @@
 
             <div class="algorithms-section">
                 <div class="algorithms-header">
-                    <h3>Algorithms Used</h3>
-                    <p>Our solution leverages advanced machine learning and optimization techniques to deliver diverse and relevant search results</p>
+                    <h3>Data Structures Used</h3>
+                    <p>Core data structures that power our efficient search ranking system</p>
                 </div>
 
                 <div class="algorithms-grid">
                     <div class="algorithm-card">
-                        <div class="algorithm-icon">
-                            <i class="fas fa-project-diagram"></i>
-                        </div>
-                        <h3 class="algorithm-title">Semantic Clustering (BERT Embeddings + K-Means)</h3>
+                        <div class="algorithm-icon">📊</div>
+                        <h3 class="algorithm-title">Vector Space Model</h3>
                         <p class="algorithm-description">
-                            Semantic clustering is a method to group similar documents or text snippets based on meaning rather than exact keyword matches. It uses language models like BERT to convert text into high-dimensional embeddings that capture semantic content. These embeddings are then fed into clustering algorithms such as K-Means to find naturally occurring groups. Each group ideally represents a distinct user intent or topic.
+                            High-dimensional vector representation of documents and queries using BERT embeddings. Each document is represented as a 768-dimensional vector, enabling efficient similarity computations and semantic understanding.
                         </p>
                         <div class="algorithm-details">
-                            <h4>In this business case:</h4>
-                            <p>It is used to automatically discover and group different sub-intents within search results.</p>
+                            <h4>Implementation Details:</h4>
+                            <ul>
+                                <li>768-dimensional float vectors</li>
+                                <li>Normalized for cosine similarity</li>
+                                <li>Memory-efficient storage</li>
+                                <li>Fast vector operations</li>
+                            </ul>
                         </div>
                     </div>
 
                     <div class="algorithm-card">
-                        <div class="algorithm-icon">
-                            <i class="fas fa-chart-line"></i>
-                        </div>
-                        <h3 class="algorithm-title">Relevance Scoring (Cosine Similarity or Transformer-Based Ranker)</h3>
+                        <div class="algorithm-icon">🌳</div>
+                        <h3 class="algorithm-title">KD-Tree</h3>
                         <p class="algorithm-description">
-                            Relevance scoring evaluates how closely a document or search result matches a given query or intent. Simple approaches use cosine similarity between vectorized representations of query and result. Advanced rankers like BERT Ranker use machine learning to predict the likelihood of user satisfaction based on past behavior. The result is a numerical score indicating textual and contextual closeness.
+                            Spatial data structure for efficient nearest neighbor search in high-dimensional spaces. Used for quick retrieval of similar documents and intent clustering.
                         </p>
                         <div class="algorithm-details">
-                            <h4>In this business case:</h4>
-                            <p>It helps rank each search result by its usefulness to the query and its sub-intents.</p>
+                            <h4>Implementation Details:</h4>
+                            <ul>
+                                <li>Balanced tree structure</li>
+                                <li>O(log n) search complexity</li>
+                                <li>Optimized for high dimensions</li>
+                                <li>Efficient range queries</li>
+                            </ul>
                         </div>
                     </div>
 
                     <div class="algorithm-card">
-                        <div class="algorithm-icon">
-                            <i class="fas fa-cogs"></i>
-                        </div>
-                        <h3 class="algorithm-title">Submodular Optimization (Greedy Approximation Algorithm)</h3>
+                        <div class="algorithm-icon">📝</div>
+                        <h3 class="algorithm-title">Priority Queue</h3>
                         <p class="algorithm-description">
-                            Submodular optimization is a technique for selecting a diverse and high-value subset from a larger set. It models diminishing returns, meaning that each additional item adds less value if it's similar to what's already selected. A greedy approximation algorithm is used for efficiency — choosing the next item that adds the most marginal gain. This method is common in summarization, recommendation, and information selection.
+                            Binary heap implementation for maintaining top-k results during submodular optimization. Ensures efficient selection of diverse and relevant documents.
                         </p>
                         <div class="algorithm-details">
-                            <h4>In this business case:</h4>
-                            <p>It ensures the final result set is both relevant and diverse across different user intents.</p>
+                            <h4>Implementation Details:</h4>
+                            <ul>
+                                <li>Binary heap structure</li>
+                                <li>O(log n) insert/delete</li>
+                                <li>O(1) max/min access</li>
+                                <li>Thread-safe operations</li>
+                            </ul>
                         </div>
                     </div>
 
                     <div class="algorithm-card">
-                        <div class="algorithm-icon">
-                            <i class="fas fa-brain"></i>
-                        </div>
-                        <h3 class="algorithm-title">Document Embedding via Transformers (BERT, SBERT)</h3>
+                        <div class="algorithm-icon">🔍</div>
+                        <h3 class="algorithm-title">Inverted Index</h3>
                         <p class="algorithm-description">
-                            Document embedding transforms text into numerical vectors that represent semantic meaning. Transformers like BERT are pretrained on large corpora to understand word context and sentence relationships. These embeddings are used for downstream tasks like similarity measurement, classification, or clustering. Embedding ensures that semantically similar documents are close in vector space, regardless of word choice.
+                            Efficient document retrieval structure mapping terms to document IDs. Used for initial candidate selection before semantic processing.
                         </p>
                         <div class="algorithm-details">
-                            <h4>In this business case:</h4>
-                            <p>It enables intent discovery and relevance scoring by providing meaningful representations of the text.</p>
+                            <h4>Implementation Details:</h4>
+                            <ul>
+                                <li>Hash table based</li>
+                                <li>Posting lists compression</li>
+                                <li>Fast term lookup</li>
+                                <li>Memory-efficient storage</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="algorithms-section">
+                <div class="algorithms-header">
+                    <h3>Algorithms Used</h3>
+                    <p>Advanced algorithms that power our intelligent search ranking system</p>
+                </div>
+
+                <div class="algorithms-grid">
+                    <div class="algorithm-card">
+                        <div class="algorithm-icon">🧠</div>
+                        <h3 class="algorithm-title">BERT Embedding Generation</h3>
+                        <p class="algorithm-description">
+                            Neural network-based algorithm for converting text into semantic vector representations. Uses transformer architecture to capture contextual meaning.
+                        </p>
+                        <div class="algorithm-details">
+                            <h4>Key Features:</h4>
+                            <ul>
+                                <li>Contextual word embeddings</li>
+                                <li>Multi-head attention</li>
+                                <li>Position-wise feed-forward</li>
+                                <li>Layer normalization</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="algorithm-card">
+                        <div class="algorithm-icon">📈</div>
+                        <h3 class="algorithm-title">K-Means Clustering</h3>
+                        <p class="algorithm-description">
+                            Unsupervised learning algorithm for grouping similar documents into intent clusters. Uses Euclidean distance in vector space.
+                        </p>
+                        <div class="algorithm-details">
+                            <h4>Key Features:</h4>
+                            <ul>
+                                <li>Iterative optimization</li>
+                                <li>Centroid-based clustering</li>
+                                <li>Automatic intent discovery</li>
+                                <li>Scalable implementation</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="algorithm-card">
+                        <div class="algorithm-icon">⚖️</div>
+                        <h3 class="algorithm-title">Greedy Submodular Optimization</h3>
+                        <p class="algorithm-description">
+                            Approximation algorithm for selecting diverse and relevant results. Maximizes coverage while maintaining quality.
+                        </p>
+                        <div class="algorithm-details">
+                            <h4>Key Features:</h4>
+                            <ul>
+                                <li>Marginal gain computation</li>
+                                <li>Diversity-aware selection</li>
+                                <li>Quality-preserving</li>
+                                <li>1-1/e approximation ratio</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="algorithm-card">
+                        <div class="algorithm-icon">🎯</div>
+                        <h3 class="algorithm-title">Cosine Similarity Ranking</h3>
+                        <p class="algorithm-description">
+                            Vector similarity algorithm for measuring relevance between queries and documents. Normalizes for document length.
+                        </p>
+                        <div class="algorithm-details">
+                            <h4>Key Features:</h4>
+                            <ul>
+                                <li>Normalized dot product</li>
+                                <li>Length-invariant</li>
+                                <li>Fast computation</li>
+                                <li>Semantic matching</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
