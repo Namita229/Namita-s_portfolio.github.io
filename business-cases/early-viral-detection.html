@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Early Viral Content Detection in YouTube Shorts</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #ff0000 0%, #cc0000 25%, #000000 50%, #1a1a1a 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background Elements */
+        .bg-animation {
+            position: fixed;
+        top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .streaming-dots {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #ff4444;
+            border-radius: 50%;
+            animation: stream 3s linear infinite;
+            opacity: 0.7;
+        }
+
+        .streaming-dots:nth-child(odd) {
+            background: #ffffff;
+            animation-duration: 4s;
+        }
+
+        .streaming-dots:nth-child(3n) {
+            background: #ffff00;
+            animation-duration: 2.5s;
+        }
+
+        @keyframes stream {
+            0% { transform: translateX(-100px) translateY(0px); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateX(calc(100vw + 100px)) translateY(-200px); opacity: 0; }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* YouTube-style Header */
+        .youtube-header {
+            background: rgba(0, 0, 0, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 2px solid #ff0000;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .yt-logo {
+            width: 60px;
+            height: 60px;
+            background: #ff0000;
+            border-radius: 10px;
+            display: flex;
+        align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        color: white;
+            font-weight: bold;
+        }
+
+        .live-indicator {
+            background: #ff0000;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+            text-transform: uppercase;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .hero {
+            background: rgba(0, 0, 0, 0.9);
+            border-radius: 20px;
+            padding: 60px 40px;
+        margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(255, 0, 0, 0.3);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+        overflow: hidden;
+      }
+
+        .hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .hero h1 {
+            font-size: 3.5em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff0000, #ffffff, #ffff00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            text-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+        }
+
+        .hero .subtitle {
+            font-size: 1.3em;
+            color: #ccc;
+            margin-bottom: 30px;
+        }
+
+        .section {
+            background: rgba(0, 0, 0, 0.85);
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .section h2 {
+            font-size: 2.5em;
+            color: #ffffff;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .section h3 {
+            font-size: 1.8em;
+            color: #ff4444;
+            margin: 30px 0 15px 0;
+            border-left: 4px solid #ff0000;
+            padding-left: 15px;
+        }
+
+        .section p, .section li {
+            color: #e0e0e0;
+            font-size: 1.1em;
+            line-height: 1.7;
+        }
+
+        .problem-grid {
+        display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .problem-card {
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            transform: translateY(0);
+        transition: all 0.3s ease;
+            border: 2px solid transparent;
+        position: relative;
+        overflow: hidden;
+      }
+
+        .problem-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+            background: linear-gradient(90deg, #ffff00, #ffffff, #ffff00);
+            animation: loading 2s linear infinite;
+        }
+
+        @keyframes loading {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .problem-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            border-color: #ffff00;
+            box-shadow: 0 15px 40px rgba(255, 0, 0, 0.4);
+        }
+
+        .algorithm-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .algo-card {
+            background: rgba(26, 26, 26, 0.9);
+            border: 2px solid #333;
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .algo-card:hover {
+            border-color: #ff0000;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 0, 0, 0.2);
+        }
+
+        .algo-card h4 {
+            color: #ff4444;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .algo-icon {
+            width: 30px;
+            height: 30px;
+            background: #480303;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        font-size: 16px;
+        }
+
+        .code-block {
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            border: 1px solid #333;
+        position: relative;
+      }
+
+        .code-block::before {
+            content: 'LIVE STREAM';
+        position: absolute;
+            top: 10px;
+            right: 15px;
+            background: #ff0000;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .stream-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: rgba(26, 26, 26, 0.9);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid #333;
+        }
+
+        .stream-table th,
+        .stream-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+            color: #e0e0e0;
+        }
+
+        .stream-table th {
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+            color: white;
+            font-weight: 600;
+        }
+
+        .stream-table tr:hover {
+            background: rgba(255, 0, 0, 0.1);
+        }
+
+        .step-counter {
+            background: #ff0000;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .step-section {
+            display: flex;
+            align-items: flex-start;
+            margin: 30px 0;
+            padding: 25px;
+            background: rgba(26, 26, 26, 0.5);
+            border-radius: 12px;
+            border-left: 4px solid #ff0000;
+        }
+
+        .viral-formula {
+            background: rgba(26, 26, 26, 0.9);
+            border: 2px solid #ff0000;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 25px 0;
+        text-align: center;
+        position: relative;
+            overflow: hidden;
+      }
+
+        .viral-formula::before {
+            content: 'ALGORITHM';
+        position: absolute;
+            top: 10px;
+            left: 20px;
+            background: #ff0000;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .formula-text {
+            font-family: 'Times New Roman', serif;
+            font-size: 1.4em;
+            color: #ffffff;
+            margin: 20px 0;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 2px solid #ff0000;
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+        color: white;
+            padding: 20px;
+            font-weight: 600;
+        }
+
+        .comparison-table td {
+            padding: 18px;
+            background: rgba(26, 26, 26, 0.9);
+            color: #e0e0e0;
+            border-bottom: 1px solid #333;
+        }
+
+        .comparison-table tr:nth-child(even) td {
+            background: rgba(51, 51, 51, 0.5);
+        }
+
+        .viz-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .viz-card {
+            background: rgba(26, 26, 26, 0.9);
+            border: 2px solid #333;
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+        position: relative;
+            overflow: hidden;
+        }
+
+        .viz-card:hover {
+            border-color: #ff0000;
+            transform: translateY(-5px);
+        }
+
+        .viz-card h4 {
+            color: #ff4444;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+        }
+
+        .chart-placeholder {
+            height: 200px;
+            background: linear-gradient(135deg, #1a1a1a, #333);
+            border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+            color: #888;
+            font-style: italic;
+            margin: 15px 0;
+            border: 2px dashed #555;
+        position: relative;
+      }
+
+        .chart-placeholder::before {
+            content: '📊';
+            font-size: 3em;
+        position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.3;
+        }
+
+        .heatmap-demo {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+            margin: 15px 0;
+        }
+
+        .heat-cell {
+            height: 40px;
+            border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .heat-low { background: #00ff00; color: #000; }
+        .heat-medium { background: #ffaa00; color: #000; }
+        .heat-high { background: #ff0000; color: #fff; }
+
+        .leaderboard {
+            background: rgba(26, 26, 26, 0.9);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            border: 2px solid #ffaa00;
+        }
+
+        .leaderboard-item {
+        display: flex;
+        align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(51, 51, 51, 0.5);
+            border-radius: 10px;
+            border-left: 4px solid #ff0000;
+        }
+
+        .rank-badge {
+            background: linear-gradient(135deg, #ffaa00, #ff0000);
+        color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+            font-weight: bold;
+            margin-right: 20px;
+        }
+
+        .summary-section {
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.9), rgba(0, 0, 0, 0.9));
+            border-radius: 20px;
+            padding: 40px;
+            margin: 40px 0;
+            color: white;
+            text-align: center;
+        position: relative;
+            overflow: hidden;
+      }
+
+        .summary-section::before {
+        content: '';
+        position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: rotate 10s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .summary-card {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .emoji {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 15px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #00ff00;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+      @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5em;
+            }
+            
+            .section {
+                padding: 25px;
+            }
+            
+            .youtube-header {
+          flex-direction: column;
+                text-align: center;
+        }
+
+            .algorithm-grid,
+            .problem-grid {
+          grid-template-columns: 1fr;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 1s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Bloom Filter Section */
+        .bloom-filter-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            background: rgba(26, 26, 26, 0.9);
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .bloom-filter-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .bloom-explanation {
+            flex: 1;
+        }
+
+        .bloom-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #ff0000;
+            margin-bottom: 10px;
+        }
+
+        .bloom-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+
+        .bloom-subtitle {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #ff4444;
+            font-weight: bold;
+        }
+
+        .bloom-points {
+            list-style: disc;
+            padding-left: 20px;
+        }
+
+        .bloom-note {
+            font-size: 12px;
+            color: #ccc;
+            margin-top: 10px;
+        }
+
+        .step-card {
+            border: 2px solid #ff0000;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            background: rgba(26, 26, 26, 0.9);
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInStep 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeInStep {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .step-card:nth-child(1) { animation-delay: 0s; }
+        .step-card:nth-child(2) { animation-delay: 1s; }
+        .step-card:nth-child(3) { animation-delay: 2s; }
+        .step-card:nth-child(4) { animation-delay: 3s; }
+        .step-card:nth-child(5) { animation-delay: 4s; }
+        .step-card:nth-child(6) { animation-delay: 5s; }
+        .step-card:nth-child(7) { animation-delay: 6s; }
+
+        .step-card h3 {
+            font-size: 1.8em;
+            color: #ff4444;
+            margin-bottom: 20px;
+        }
+
+        .step-card p {
+            font-size: 1.1em;
+            color: #e0e0e0;
+            line-height: 1.7;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <!-- Streaming dots will be generated by JavaScript -->
+          </div>
+
+      <div class="container">
+        <!-- YouTube Style Header -->
+        <div class="youtube-header fade-in">
+            <div class="yt-logo">YT</div>
+            <div>
+                <h2 style="color: white; margin: 0;">Early Viral Content Detection System</h2>
+                <p style="color: #ccc; margin: 5px 0 0 0;">Real-time Analytics Dashboard</p>
+          </div>
+            
+          </div>
+
+        <!-- Problem Statement Section -->
+        <div class="section fade-in">
+            <h2><span class="emoji">🎯</span>What Problem Are We Solving?</h2>
+            <p style="font-size: 1.2em; margin-bottom: 20px;"><strong>YouTube Shorts</strong> receives <strong>thousands of videos every minute</strong>. But by the time something is detected as <em>viral</em>, it's often <strong>already past its peak</strong> or <strong>influenced by artificial promotion</strong>.</p>
+            
+            <h3>Core Problems:</h3>
+            <div class="problem-grid">
+                <div class="problem-card">
+                    <h4>✖️ Delayed Discovery</h4>
+                    <p>Trending content detection happens too late</p>
+              </div>
+                <div class="problem-card">
+                    <h4>✖️Unfair Visibility</h4>
+                    <p>Genuine creators don't get equal opportunity</p>
+            </div>
+                <div class="problem-card">
+                    <h4>✖️ Manipulated Virality</h4>
+                    <p>Creator groups and bots influence trends</p>
+              </div>
+                <div class="problem-card">
+                    <h4>✖️Inefficient Ad Targeting</h4>
+                    <p>Missing early signals for optimal placement</p>
+            </div>
+          </div>
+
+            <h3>Goal:</h3>
+            <div style="background: rgba(255, 0, 0, 0.1); padding: 25px; border-radius: 12px; border-left: 4px solid #ff0000; margin: 20px 0;">
+                <p style="font-size: 1.1em; color: #ffffff;">Build a <strong>low-latency, memory-efficient system</strong> that can <strong>detect early viral trends</strong> and <strong>flag manipulated behavior</strong> — before it spreads uncontrollably.</p>
+            </div>
+          </div>
+
+        <!-- Algorithms Section -->
+        <div class="section fade-in">
+            <h2><span class="emoji">🧠</span>What Algorithms & Data Structures Are We Using?</h2>
+            <p style="margin-bottom: 25px;">This system relies on <strong>streaming algorithms</strong>, <strong>burst detection</strong>, and <strong>graph-based manipulation analysis</strong>.</p>
+            
+            <div class="algorithm-grid">
+                <div class="algo-card">
+                    <h4><span class="algo-icon">1</span>Count-Min Sketch / Stream Bloom Filter</h4>
+                    <p><strong>Bloom Filter Purpose:</strong> Quickly filter out videos that have never been seen before (or definitely not in your tracked set).</p>
+                    <p><strong>Bloom Filter Need:</strong></p>
+                    <ul>
+                        <li>Helps avoid unnecessary processing for videos that have no prior views or data.</li>
+                        <li>Bloom filter's fast "definitely not present" check saves computation and memory by ignoring completely new content until it appears enough times.</li>
+                        <li>It's a space-efficient membership filter for millions of video IDs.</li>
+                    </ul>
+                    <p><strong>Count-min Sketch (CMS) Purpose:</strong> Maintain approximate view counts for each video in real time using small memory.</p>
+                    <p><strong>Count-min Sketch (CMS) Need:</strong></p>
+                    <ul>
+                        <li>You have massive streaming data (view events per video) that's impossible to store exactly due to scale.</li>
+                        <li>CMS gives a fast, memory-efficient frequency estimate of views per video ID.</li>
+                        <li>It provides the counts needed to identify which videos are gaining attention.</li>
+                    </ul>
+          </div>
+
+                <div class="algo-card">
+                    <h4><span class="algo-icon">2</span>Burst Detection (Sliding Window + Threshold)</h4>
+                    <p><strong>Burst Detection Purpose:</strong> Detect sudden spikes in view counts over short periods that suggest viral potential.</p>
+                    <p><strong>Burst Detection Need:</strong></p>
+                    <ul>
+                      <li>Not all high-view videos are viral — virality is about the *rate of change*, not just the count.</li>
+                      <li>A sliding time window helps track the *velocity* of views, highlighting rapid rise in popularity.</li>
+                      <li>Thresholding mechanisms help classify "bursts" — e.g., a view count doubling in 5 minutes vs. 5 days.</li>
+                      <li>Videos crossing burst thresholds are flagged as potential early-stage viral content.</li>
+                    </ul>
+                </div>
+                
+                
+                  <div class="algo-card">
+                    <h4><span class="algo-icon">3</span>Graph-based Manipulation Detection</h4>
+                    <p><strong>Purpose:</strong> Identify suspicious activity patterns like bot-driven or artificially boosted views.</p>
+                    <p><strong>Need:</strong></p>
+                    <ul>
+                      <li>Not all spikes are organic. Some are caused by coordinated bot behavior or fake engagement.</li>
+                      <li>Models a graph with nodes (user/device/IP) and edges (interactions with videos) to detect anomalies.</li>
+                      <li>High edge overlap across multiple videos or sudden high-degree centrality can signal manipulation.</li>
+                      <li>This protects the system from falsely promoting artificially inflated content.</li>
+                </ul>
+              </div>
+
+                
+                  <div class="algo-card">
+                    <h4><span class="algo-icon">4</span>Time-decayed Priority Queue</h4>
+                    <p><strong>Purpose:</strong> Maintain a live ranking of potentially viral videos, giving more weight to recent activity.</p>
+                    <p><strong>Need:</strong></p>
+                    <ul>
+                      <li>We want a queue of candidates that is always up-to-date with the most *recently trending* videos.</li>
+                      <li>Older bursts should decay in importance — yesterday's viral video is no longer today's headline.</li>
+                      <li>Time decay ensures new but relevant content surfaces above stale content.</li>
+                      <li>This helps decision-makers (or automated systems) act on fresh trends fast — for promotion, alerts, or caching.</li>
+                    </ul>
+                  </div>
+                     
+                    </div>
+
+            <div class="viral-formula">
+                <div class="formula-text">
+                    <strong>Virality Score = α×(Frequency + Burst) - β×(Manipulation Risk)</strong>
+                      </div>
+            </div>
+                    </div>
+
+        <!-- Working Example Section -->
+        <div class="section fade-in">
+            <h2>✅ Early Viral Detection Workflow (Step-by-Step)</h2>
+            
+            <div class="step-card">
+                <h3>1. Receive a View Event</h3>
+                <p>A new view is received from the video stream (e.g., user watched vid_42).</p>
+                      </div>
+
+            <div class="step-card">
+                <h3>2. Check if Video is Known using → 🌱 Bloom Filter</h3>
+                <p><strong>Purpose:</strong> Quickly check if this video has been seen before.</p>
+                <p>🔹 If Bloom Filter says "definitely not present", it's a brand new video.</p>
+                <ul>
+                    <li>Add this video ID to Bloom Filter.</li>
+                    <li>Skip further processing for now (wait until it's seen again).</li>
+                </ul>
+                <p>🔹 If Bloom Filter says "maybe present", assume it could be known.</p>
+                <ul>
+                    <li>Proceed to tracking its view count.</li>
+                </ul>
+                    </div>
+
+            <div class="step-card">
+                <h3>3. Update View Count using → 📊 Count-Min Sketch (CMS)</h3>
+                <p><strong>Purpose:</strong> Efficiently count how many times this video has been viewed so far.</p>
+                <p>🔹 Update CMS by incrementing the estimated count for this video.</p>
+                <p>🔹 This gives an approximate total view count using limited memory.</p>
+                      </div>
+
+            <div class="step-card">
+                <h3>4. Analyze View Trends using → 🚨 Burst Detection</h3>
+                <p><strong>Purpose:</strong> Detect if the video is suddenly gaining attention.</p>
+                <p>🔹 Check CMS count increase over sliding time windows (e.g., 1 min).</p>
+                <p>🔹 If the rate of increase crosses a threshold:</p>
+                <ul>
+                    <li>Flag the video as having a potential burst.</li>
+                    <li>Mark it for further investigation.</li>
+                </ul>
+                    </div>
+
+            <div class="step-card">
+                <h3>5. Verify Authenticity using → 🔐 Graph-Based Manipulation Detection</h3>
+                <p><strong>Purpose:</strong> Ensure the burst is not due to artificial or bot activity.</p>
+                <p>🔹 Create a graph of users/IPs/devices connected to this video.</p>
+                <p>🔹 Analyze the graph:</p>
+                <ul>
+                    <li>If many diverse and distributed users, it's likely organic.</li>
+                    <li>If few repeating or clustered users, it may be manipulated → discard or downrank.</li>
+                </ul>
+                      </div>
+
+            <div class="step-card">
+                <h3>6. Update Live Rankings using → ⏳ Time-Decayed Priority Queue (Optional Layer)</h3>
+                <p><strong>Purpose:</strong> Maintain a ranked list of currently trending videos.</p>
+                <p>🔹 Insert video with weight proportional to:</p>
+                <ul>
+                    <li>CMS count</li>
+                    <li>Burst score</li>
+                    <li>Organic authenticity</li>
+                </ul>
+                <p>🔹 Older videos decay over time, keeping the queue fresh with new trends.</p>
+                    </div>
+
+            <div class="step-card">
+                <h3>7. Notify Monitoring/Promotion System</h3>
+                <p>If a video is organically bursting:</p>
+                <ul>
+                    <li>Trigger early promotion or alert moderators or log it for trending page.</li>
+                </ul>
+                <p>This allows platforms like YouTube to act early, promoting viral content fast.</p>
+                  </div>
+
+                </div>
+
+        <!-- Comparison Section -->
+        <div class="section fade-in">
+            <h2><span class="emoji">📊</span>How Is This Better Than Traditional Methods?</h2>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Traditional Methods</th>
+                        <th>Our Method</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>View Tracking</strong></td>
+                        <td>Requires storing all events</td>
+                        <td>Approximate, streaming-based</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Real-time Detection</strong></td>
+                        <td>Batch processing (hours later)</td>
+                        <td>Near real-time (minutes)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Memory Usage</strong></td>
+                        <td>High (stores all data)</td>
+                        <td>Low (probabilistic structures)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Manipulation Resistance</strong></td>
+                        <td>Low</td>
+                        <td>High (graph analysis)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Scalability</strong></td>
+                        <td>Challenging with data volume</td>
+                        <td>Highly scalable for streams</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        
+        </div>
+    </div>
+  </body>
+</html>
