@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEC with Private 5G | DDoS Detection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            background: #0a192f;
+            min-height: 100vh;
+            color: #e6e6e6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            background: rgba(16, 42, 66, 0.5);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 3rem;
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #64ffda, #00bfa5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            color: #64ffda;
+            margin-bottom: 1.5rem;
+            font-weight: 300;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(100, 255, 218, 0.1);
+            color: #64ffda;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border: 1px solid rgba(100, 255, 218, 0.3);
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: rgba(16, 42, 66, 0.5);
+            border-radius: 20px;
+            padding: 2.5rem;
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(100, 255, 218, 0.4);
+            box-shadow: 0 10px 30px rgba(100, 255, 218, 0.1);
+        }
+
+        .card h2 {
+            color: #64ffda;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .icon {
+            font-size: 1.5rem;
+        }
+
+        .card p, .card li {
+            margin-bottom: 1rem;
+            color: #e6e6e6;
+            line-height: 1.7;
+        }
+
+        .card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .card li::before {
+            content: "→";
+            margin-right: 0.5rem;
+            color: #64ffda;
+        }
+
+        .highlight {
+            background: rgba(100, 255, 218, 0.1);
+            padding: 0.2rem 0.5rem;
+            border-radius: 5px;
+            font-weight: 600;
+            color: #64ffda;
+        }
+
+        .full-width-card {
+            grid-column: 1 / -1;
+        }
+
+        .stack-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .stack-item {
+            background: rgba(16, 42, 66, 0.5);
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 1px solid rgba(100, 255, 218, 0.2);
+        }
+
+        .stack-item h3 {
+            color: #64ffda;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .stack-item p {
+            color: #e6e6e6;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .metrics-section {
+            background: linear-gradient(135deg, #00bfa5, #64ffda);
+            border-radius: 20px;
+            padding: 3rem;
+            margin: 2rem 0;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(100, 255, 218, 0.3);
+        }
+
+        .metrics-section h2 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: #0a192f;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .metric-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+        }
+
+        .metric-item h3 {
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            color: #0a192f;
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .tech-badge {
+            background: rgba(100, 255, 218, 0.1);
+            color: #64ffda;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            border: 1px solid rgba(100, 255, 218, 0.3);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 2rem;
+            background: rgba(16, 42, 66, 0.5);
+            border-radius: 15px;
+            border: 1px solid rgba(100, 255, 218, 0.2);
+        }
+
+        .footer p {
+            color: #e6e6e6;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .project-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #64ffda, #00bfa5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .code-block {
+            background: rgba(10, 25, 47, 0.8);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            margin: 1rem 0;
+            font-family: 'Fira Code', monospace;
+            color: #e6e6e6;
+        }
+
+        .code-block .comment {
+            color: #00bfa5;
+        }
+
+        .code-block .keyword {
+            color: #64ffda;
+        }
+
+        .code-block .string {
+            color: #ffd700;
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>MEC with Private 5G for DDoS Detection</h1>
+            <p class="subtitle">Edge Computing Security in Next-Generation Networks</p>
+            <div class="badge">Real-time Threat Detection • 150ms Latency</div>
+        </header>
+
+        <div class="content-grid">
+            <div class="card">
+                <h2><span class="icon">🧩</span> Overview</h2>
+                <p>This project implements a private 5G testbed using Open5GS and srsRAN, and integrates a Multi-access Edge Computing (MEC) layer to detect and respond to DDoS attacks in real time.</p>
+                <p>The goal was to simulate realistic 5G network traffic and deploy deep learning models close to the data source for low-latency security analysis.</p>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon">🔧</span> Testbed Setup</h2>
+                <div class="code-block">
+                    <span class="comment"># Component Stack</span><br>
+                    <span class="keyword">5G Core:</span> <span class="string">Open5GS</span><br>
+                    <span class="keyword">5G RAN:</span> <span class="string">srsRAN</span><br>
+                    <span class="keyword">UE Emulation:</span> <span class="string">srsUE, SDR</span><br>
+                    <span class="keyword">MEC Platform:</span> <span class="string">Docker, Flask, Kafka</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card full-width-card">
+            <h2><span class="icon">🧠</span> Model Pipeline</h2>
+            <div class="stack-grid">
+                <div class="stack-item">
+                    <h3>1. BiLSTM Model</h3>
+                    <p>Input: Sequence of network activity logs<br>
+                    Accuracy: ~93%<br>
+                    F1-score: 90%</p>
+                </div>
+                <div class="stack-item">
+                    <h3>2. XGBoost Model</h3>
+                    <p>Faster, interpretable classification<br>
+                    Accuracy: ~91%<br>
+                    Real-time inference</p>
+                </div>
+                <div class="stack-item">
+                    <h3>3. Deployment</h3>
+                    <p>Docker containers<br>
+                    REST APIs on MEC layer<br>
+                    Real-time querying</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="metrics-section">
+            <h2>📊 Performance Metrics</h2>
+            <div class="metrics-grid">
+                <div class="metric-item">
+                    <h3>Detection Time</h3>
+                    <p>Under 150ms</p>
+                </div>
+                <div class="metric-item">
+                    <h3>BiLSTM Accuracy</h3>
+                    <p>93%</p>
+                </div>
+                <div class="metric-item">
+                    <h3>XGBoost Accuracy</h3>
+                    <p>91%</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <div class="card">
+                <h2><span class="icon">💡</span> Key Features</h2>
+                <ul>
+                    <li>Full emulation of private 5G environment</li>
+                    <li>Live data-driven anomaly detection</li>
+                    <li>Containerized setup for portability</li>
+                    <li>Streaming log processing with Kafka</li>
+                    <li>Real-time threat response</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon">🔮</span> Future Scope</h2>
+                <ul>
+                    <li>Multi-class attack detection</li>
+                    <li>SDN controller integration</li>
+                    <li>Hardware UE devices support</li>
+                    <li>Federated learning across MEC nodes</li>
+                </ul>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p><strong>5G Security Research</strong></p>
+            <p>Advancing edge computing security in next-generation networks</p>
+            <div class="project-logo">MEC • Private 5G • DDoS Detection</div>
+        </footer>
+    </div>
+</body>
+</html>
