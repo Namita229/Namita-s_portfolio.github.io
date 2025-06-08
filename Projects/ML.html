@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transformer-Based NL-to-SQL Generation | ML Research</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            background: #1a1a2e;
+            min-height: 100vh;
+            color: #e6e6e6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            background: rgba(45, 45, 78, 0.5);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 3rem;
+            border: 1px solid rgba(162, 155, 254, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #a29bfe, #6c5ce7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            color: #a29bfe;
+            margin-bottom: 1.5rem;
+            font-weight: 300;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(162, 155, 254, 0.1);
+            color: #a29bfe;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border: 1px solid rgba(162, 155, 254, 0.3);
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: rgba(45, 45, 78, 0.5);
+            border-radius: 20px;
+            padding: 2.5rem;
+            border: 1px solid rgba(162, 155, 254, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(162, 155, 254, 0.4);
+            box-shadow: 0 10px 30px rgba(162, 155, 254, 0.1);
+        }
+
+        .card h2 {
+            color: #a29bfe;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .icon {
+            font-size: 1.5rem;
+        }
+
+        .card p, .card li {
+            margin-bottom: 1rem;
+            color: #e6e6e6;
+            line-height: 1.7;
+        }
+
+        .card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .card li::before {
+            content: "→";
+            margin-right: 0.5rem;
+            color: #a29bfe;
+        }
+
+        .highlight {
+            background: rgba(162, 155, 254, 0.1);
+            padding: 0.2rem 0.5rem;
+            border-radius: 5px;
+            font-weight: 600;
+            color: #a29bfe;
+        }
+
+        .full-width-card {
+            grid-column: 1 / -1;
+        }
+
+        .model-architecture {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .model-step {
+            background: rgba(45, 45, 78, 0.5);
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 1px solid rgba(162, 155, 254, 0.2);
+        }
+
+        .model-step h3 {
+            color: #a29bfe;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .model-step p {
+            color: #e6e6e6;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .results-section {
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            border-radius: 20px;
+            padding: 3rem;
+            margin: 2rem 0;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(108, 92, 231, 0.3);
+        }
+
+        .results-section h2 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: white;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .result-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+        }
+
+        .result-item h3 {
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .tech-badge {
+            background: rgba(162, 155, 254, 0.1);
+            color: #a29bfe;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            border: 1px solid rgba(162, 155, 254, 0.3);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 2rem;
+            background: rgba(45, 45, 78, 0.5);
+            border-radius: 15px;
+            border: 1px solid rgba(162, 155, 254, 0.2);
+        }
+
+        .footer p {
+            color: #e6e6e6;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .conference-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #a29bfe, #6c5ce7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .code-block {
+            background: rgba(26, 26, 46, 0.8);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid rgba(162, 155, 254, 0.2);
+            margin: 1rem 0;
+            font-family: 'Fira Code', monospace;
+            color: #e6e6e6;
+        }
+
+        .code-block .comment {
+            color: #6c5ce7;
+        }
+
+        .code-block .keyword {
+            color: #a29bfe;
+        }
+
+        .code-block .string {
+            color: #00b894;
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🔄 Transformer-Based NL-to-SQL Generation</h1>
+            <p class="subtitle">Bridging Natural Language and Database Queries with Deep Learning</p>
+            <div class="badge">Presented at CRM 2025 • Springer Scopus-indexed</div>
+        </header>
+
+        <div class="content-grid">
+            <div class="card">
+                <h2><span class="icon">🧩</span> Overview</h2>
+                <p>This project focused on building a Transformer-based deep learning model that automatically translates natural language (NL) queries into executable SQL statements, allowing users with no database experience to interact with relational databases through plain English.</p>
+                <p>The goal was to bridge the gap between user intent and structured query generation in real-world, enterprise-scale datasets.</p>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon">💡</span> Motivation</h2>
+                <p>Traditional SQL interfaces are a barrier for non-technical users who want to retrieve information from databases. Existing rule-based or template-based systems fail to scale for complex or ambiguous queries.</p>
+                <div class="code-block">
+                    <span class="comment"># Example: Natural Language to SQL</span><br>
+                    <span class="keyword">Input:</span> "show all customers older than 40"<br>
+                    <span class="keyword">Output:</span> <span class="string">"SELECT * FROM customers WHERE age > 40"</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card full-width-card">
+            <h2><span class="icon">🧠</span> Model Architecture</h2>
+            <div class="model-architecture">
+                <div class="model-step">
+                    <h3>1. Transformer Encoder-Decoder</h3>
+                    <p>Encoder: BERT-based encoding of NL + schema<br>
+                    Decoder: Transformer layers to autoregressively generate SQL tokens</p>
+                </div>
+                <div class="model-step">
+                    <h3>2. T5 Fine-tuning</h3>
+                    <p>Input: "translate English to SQL: show all customers older than 40"<br>
+                    Output: "SELECT * FROM customers WHERE age > 40"</p>
+                </div>
+                <div class="model-step">
+                    <h3>3. Training Approach</h3>
+                    <p>Fine-tuned T5-small and T5-base on Spider subset<br>
+                    Used teacher forcing during training and beam search for inference</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="results-section">
+            <h2>📈 Results & Performance</h2>
+            <div class="results-grid">
+                <div class="result-item">
+                    <h3>T5-base</h3>
+                    <p>58.4% Exact Match<br>66.7% Execution Accuracy</p>
+                </div>
+                <div class="result-item">
+                    <h3>T5-small</h3>
+                    <p>52.3% Exact Match<br>61.0% Execution Accuracy</p>
+                </div>
+                <div class="result-item">
+                    <h3>Baseline</h3>
+                    <p>41.8% Exact Match<br>47.2% Execution Accuracy</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <div class="card">
+                <h2><span class="icon">⚙️</span> Tools & Frameworks</h2>
+                <div class="tech-stack">
+                    <span class="tech-badge">HuggingFace Transformers</span>
+                    <span class="tech-badge">PyTorch</span>
+                    <span class="tech-badge">T5 / BERT</span>
+                    <span class="tech-badge">Spider Dataset</span>
+                    <span class="tech-badge">PostgreSQL</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon">🔮</span> Future Scope</h2>
+                <ul>
+                    <li>Incorporate contextual follow-up queries (multi-turn NL-to-SQL)</li>
+                    <li>Add schema linking and table graph encoders</li>
+                    <li>Explore in-context learning with large models</li>
+                    <li>Develop a live demo UI for real-time query translation</li>
+                </ul>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p><strong>Machine Learning Research</strong></p>
+            <p>Advancing natural language processing for database accessibility</p>
+            <div class="conference-logo">CRM 2025 • Springer Scopus-indexed</div>
+        </footer>
+    </div>
+</body>
+</html>
